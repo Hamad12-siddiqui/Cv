@@ -8,6 +8,7 @@ import { Footer } from './Footer';
 import ScrollToTop from './ScrollToTop';
 import PaymentForm from './PaymentForm';
 import { toast } from 'react-toastify';
+import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { ArrowLeft, Copy, CheckCheck } from 'lucide-react';
 
 interface ResumePreviewImages {
@@ -45,8 +46,8 @@ interface BundleState {
 export const BundlePreview: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDarkMode } = useTheme();
-  const { language } = useLanguage();
+const { isDarkMode, toggleDarkMode } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
   const state = location.state as BundleState;
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentPreview, setCurrentPreview] = useState<'resume' | 'linkedin' | 'cover-letter'>('resume');
@@ -219,8 +220,8 @@ export const BundlePreview: React.FC = () => {
       <Header
         isDarkMode={isDarkMode}
         language={language}
-        toggleDarkMode={() => {}}
-        toggleLanguage={() => {}}
+        toggleDarkMode={toggleDarkMode}
+        toggleLanguage={toggleLanguage}
       />
 
       <main className="container mx-auto px-4 py-8 pt-24">
@@ -311,9 +312,10 @@ export const BundlePreview: React.FC = () => {
                             {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                           </div>
                           {!isPaid && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                                <MdOutlineRemoveRedEye size={36} className='text-white' />
                               <p className="text-white text-lg font-semibold">
-                                {language === 'ar' ? 'محتوى مقفل' : 'Locked Content'}
+                                {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
                               </p>
                             </div>
                           )}
@@ -347,9 +349,10 @@ export const BundlePreview: React.FC = () => {
                             {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                           </div>
                           {!isPaid && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                                <MdOutlineRemoveRedEye size={36} className='text-white' />
                               <p className="text-white text-lg font-semibold">
-                                {language === 'ar' ? 'محتوى مقفل' : 'Locked Content'}
+                                {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
                               </p>
                             </div>
                           )}
@@ -365,9 +368,37 @@ export const BundlePreview: React.FC = () => {
           {currentPreview === 'linkedin' && state?.linkedin && (
             <div className="space-y-6">
               <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} relative`}>
-                <h3 className="text-xl font-semibold mb-4">
-                  {language === 'ar' ? 'العنوان المهني' : 'Professional Headline'}
-                </h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold">
+                    {language === 'ar' ? 'العنوان المهني' : 'Professional Headline'}
+                  </h3>
+                  {isPaid && (
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(state.linkedin.tagLine);
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                        toast.success(
+                          language === 'ar'
+                            ? 'تم نسخ المحتوى'
+                            : 'Content copied to clipboard'
+                        );
+                      }}
+                      className={`p-2 rounded-lg transition-all duration-200 ${
+                        isDarkMode 
+                          ? 'hover:bg-gray-700 text-gray-300 hover:text-white' 
+                          : 'hover:bg-gray-100 text-gray-600 hover:text-black'
+                      }`}
+                      title={language === 'ar' ? 'نسخ المحتوى' : 'Copy content'}
+                    >
+                      {isCopied ? (
+                        <CheckCheck className="w-5 h-5" />
+                      ) : (
+                        <Copy className="w-5 h-5" />
+                      )}
+                    </button>
+                  )}
+                </div>
                 <div 
                   className={`relative ${!isPaid ? 'select-none' : ''}`}
                   style={{ 
@@ -379,8 +410,9 @@ export const BundlePreview: React.FC = () => {
                 </div>
                 {!isPaid && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                    <MdOutlineRemoveRedEye size={36} className='text-white' />
                     <p className="text-white text-lg font-semibold">
-                      {language === 'ar' ? 'محتوى مقفل' : 'Locked Content'}
+                      {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
                     </p>
                   </div>
                 )}
@@ -428,9 +460,10 @@ export const BundlePreview: React.FC = () => {
                   <p className="whitespace-pre-wrap">{state.linkedin.profileSummary}</p>
                 </div>
                 {!isPaid && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                    <MdOutlineRemoveRedEye size={36} className='text-white' />
                     <p className="text-white text-lg font-semibold">
-                      {language === 'ar' ? 'محتوى مقفل' : 'Locked Content'}
+                      {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
                     </p>
                   </div>
                 )}
@@ -464,9 +497,10 @@ export const BundlePreview: React.FC = () => {
                         {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                       </div>
                       {!isPaid && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                            <MdOutlineRemoveRedEye  size={36} className='text-white' />
                           <p className="text-white text-lg font-semibold">
-                            {language === 'ar' ? 'محتوى مقفل' : 'Locked Content'}
+                            {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
                           </p>
                         </div>
                       )}

@@ -379,22 +379,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
           </p>
         </div>
 
-        <div className="flex sm:justify-between justify-center  mb-8 ">
-          {[1, 2, 3].map((step) => (
-            <div key={step} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                activeStep >= step ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'
-              } transition-all duration-200`}>
-                {step}
-              </div>
-              {step < 3 && (
-                <div className={`sm:w-40 h-1 ${
-                  activeStep > step ? 'bg-black' : 'bg-gray-200'
-                } transition-all duration-200  `}/>
-              )}
-            </div>
-          ))}
-        </div>
+        
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-sm">
           {activeStep === 1 && (
