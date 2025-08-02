@@ -30,32 +30,12 @@ const Testimonial: React.FC<TestimonialProps & { showTwitter?: boolean; isDarkMo
       />
       <div>
         <h3 className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>{name}</h3>
-        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        {/* <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           {position} at {company}
-        </p>
+        </p> */}
       </div>
       <div className="ml-auto flex space-x-2">
-        {showTwitter ? (
-          <a
-           
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-500"
-            aria-label="Twitter"
-          >
-          </a>
-        ) : (
-          linkedInUrl && (
-            <a
-             
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-700"
-            >
-            
-            </a>
-          )
-        )}
+       
       </div>
     </div>
     <blockquote className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>"{testimonial}"</blockquote>

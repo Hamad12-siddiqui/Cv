@@ -8,6 +8,7 @@ import PaymentForm from "./PaymentForm"
 import { useTheme } from "../hooks/useTheme"
 import { useLanguage } from "../hooks/useLanguage"
 import { Loader2, Download, Eye, ArrowLeft, FileText, Sparkles, X, AlertCircle } from "lucide-react"
+import { MdOutlineRemoveRedEye } from "react-icons/md"
 // Mobile detection utility (copied from CoverLetterPreview.tsx)
 const isMobileDevice = (): boolean => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
@@ -32,31 +33,31 @@ export const PreviewPage: React.FC = () => {
   
   // Mobile image preview state
   const [isMobile, setIsMobile] = useState(false)
-  const [previewImages, setPreviewImages] = useState<string[] | null>(null)
+  const [previewImages, setPreviewImages] = useState<{ classic: string[]; modern: string[] } | null>(null)
   const [previewImageLoading, setPreviewImageLoading] = useState(false)
   const [previewImageError, setPreviewImageError] = useState<string>("")
   // Full screen image modal state
   const [fullScreenImg, setFullScreenImg] = useState<string | null>(null)
   // Detect mobile on mount
-  useEffect(() => {
-    setIsMobile(isMobileDevice());
-    // Only on mobile: show overlay when page loses focus
-    if (isMobileDevice()) {
-      const handleBlur = () => setShowMobileOverlay(true);
-      const handleFocus = () => setShowMobileOverlay(false);
-      window.addEventListener('blur', handleBlur);
-      window.addEventListener('focus', handleFocus);
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) setShowMobileOverlay(true);
-        else setShowMobileOverlay(false);
-      });
-      return () => {
-        window.removeEventListener('blur', handleBlur);
-        window.removeEventListener('focus', handleFocus);
-        document.removeEventListener('visibilitychange', () => {});
-      };
-    }
-  }, []);
+  // useEffect(() => {
+  //   setIsMobile(isMobileDevice());
+  //   // Only on mobile: show overlay when page loses focus
+  //   if (isMobileDevice()) {
+  //     const handleBlur = () => setShowMobileOverlay(true);
+  //     const handleFocus = () => setShowMobileOverlay(false);
+  //     window.addEventListener('blur', handleBlur);
+  //     window.addEventListener('focus', handleFocus);
+  //     document.addEventListener('visibilitychange', () => {
+  //       if (document.hidden) setShowMobileOverlay(true);
+  //       else setShowMobileOverlay(false);
+  //     });
+  //     return () => {
+  //       window.removeEventListener('blur', handleBlur);
+  //       window.removeEventListener('focus', handleFocus);
+  //       document.removeEventListener('visibilitychange', () => {});
+  //     };
+  //   }
+  // }, []);
   // Screenshot and Screen Recording Protection
   useEffect(() => {
     // Add CSS to prevent screenshots and recordings
@@ -252,67 +253,125 @@ export const PreviewPage: React.FC = () => {
   useEffect(() => {
     setPreviewImageError("");
     setPreviewImageLoading(true);
-    setPreviewImages(null);
+    setPreviewImages({ classic: [], modern: [] });
+
     const fetchImages = async () => {
       try {
-        const filename = activePreview === 'classic' ? state.classicResumeUrl : state.modernResumeUrl;
         const API_BASE_URL = "https://ai.cvaluepro.com/resume/images";
-        const response = await axios.post(
-          API_BASE_URL,
-          {
-            session_id: String(state.sessionId),
-            filenames: [filename],
-          },
-          {
-            headers: {
-              'ngrok-skip-browser-warning': 'true',
-              'Content-Type': 'application/json',
+
+        // Fetch images for both classic and modern resumes
+        const [classicResponse, modernResponse] = await Promise.all([
+          axios.post(
+            API_BASE_URL,
+            {
+              session_id: String(state.sessionId),
+              filenames: [state.classicResumeUrl],
             },
-            timeout: 30000,
-            validateStatus: () => true // Always resolve, handle errors manually
-          }
-        );
-        // Debug: log the response
-        console.log('DEBUG /images API response:', response.data);
-        if (response.status === 404 || (response.data && response.data.detail && response.data.detail.includes('not found'))) {
-          setPreviewImages([]);
-          setPreviewImageError(String(language) === 'ar' ? 'ملف السيرة الذاتية غير موجود للمعاينة' : 'Resume file not found for preview');
-          return;
+            {
+              headers: {
+                'ngrok-skip-browser-warning': 'true',
+                'Content-Type': 'application/json',
+              },
+              timeout: 30000,
+              validateStatus: () => true, // Always resolve, handle errors manually
+            }
+          ),
+          axios.post(
+            API_BASE_URL,
+            {
+              session_id: String(state.sessionId),
+              filenames: [state.modernResumeUrl],
+            },
+            {
+              headers: {
+                'ngrok-skip-browser-warning': 'true',
+                'Content-Type': 'application/json',
+              },
+              timeout: 30000,
+              validateStatus: () => true, // Always resolve, handle errors manually
+            }
+          ),
+        ]);
+
+        // Process classic resume images
+        let classicImages = [];
+        if (classicResponse.status === 200 && classicResponse.data) {
+          const classicKey = Object.keys(classicResponse.data)[0];
+          classicImages = classicResponse.data[classicKey] || [];
         }
-        let images: string[] | undefined;
-        if (Array.isArray(response.data)) {
-          images = response.data;
-        } else if (response.data && Array.isArray(response.data.images)) {
-          images = response.data.images;
-        } else if (Array.isArray(response.data["images"])) {
-          images = response.data["images"];
-        } else if (typeof response.data === 'object') {
-          // Try to extract any array of strings from the object
-          const arr = Object.values(response.data).find(v => Array.isArray(v) && v.every(i => typeof i === 'string'));
-          if (arr) images = arr as string[];
+
+        // Process modern resume images
+        let modernImages = [];
+        if (modernResponse.status === 200 && modernResponse.data) {
+          const modernKey = Object.keys(modernResponse.data)[0];
+          modernImages = modernResponse.data[modernKey] || [];
         }
-        if (images && images.length > 0) {
-          setPreviewImages(images);
-        } else {
-          setPreviewImages([]);
-          setPreviewImageError(
-            (String(language) === 'ar' ? 'لم يتم العثور على صور المعاينة' : 'No preview images found')
-          );
-        }
+
+        // Combine images into a single state
+        setPreviewImages({
+          classic: classicImages,
+          modern: modernImages,
+        });
       } catch (error) {
-        setPreviewImages([]);
         setPreviewImageError(
-          (String(language) === 'ar' ? 'حدث خطأ أثناء تحميل الصور' : 'Error loading images')
+          String(language) === 'ar' ? 'حدث خطأ أثناء تحميل الصور' : 'Error loading images'
         );
       } finally {
         setPreviewImageLoading(false);
       }
     };
+
     fetchImagesRef.current = fetchImages;
     fetchImages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activePreview, language, state.classicResumeUrl, state.modernResumeUrl, state.sessionId]);
+  }, [state.classicResumeUrl, state.modernResumeUrl, state.sessionId, language]);
 
+  // Update rendering logic to display images directly
+  const renderPreviewImages = (type: 'classic' | 'modern') => {
+    if (previewImageLoading) {
+      return (
+        <div className="flex flex-col  items-center justify-center min-h-[160px]">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}></p>
+        </div>
+      );
+    } else if (previewImageError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
+          <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}></p>
+          <button
+            onClick={() => fetchImagesRef.current()}
+            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'}`}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    } else if (previewImages && previewImages[type] && previewImages[type].length > 0) {
+      return (
+        <div className="flex flex-col gap-4 items-center justify-center py-4">
+          {previewImages[type].map((img: string, idx: number) => (
+            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+              <img
+                src={img}
+                alt="Resume Preview"
+                className="w-full h-auto object-contain rounded cursor-zoom-in"
+                onClick={() => setFullScreenImg(img)}
+              />
+              
+              <div className="absolute inset-0 flex-col bg-black opacity-50 rounded flex items-center justify-center">
+                <MdOutlineRemoveRedEye className="text-white " size={36} />
+                <span className="text-white text-lg font-bold">Locked Content</span>
+
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return null; // No fallback text, just return null
+    }
+  };
   // State for payment form visibility
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedResumeType, setSelectedResumeType] = useState<'classic' | 'modern'>('classic');
@@ -409,7 +468,7 @@ export const PreviewPage: React.FC = () => {
         <div className="hidden lg:grid lg:grid-cols-2  gap-20 w-[80%] mx-auto">
           {/* Classic Resume Images */}
           <div
-            className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${
+            className={`group relative rounded-2xl overflow-y-auto h-[90vh] transition-all duration-300 ${
               isDarkMode
                 ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                 : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
@@ -464,31 +523,30 @@ export const PreviewPage: React.FC = () => {
                       {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
                     </button>
                   </div>
-                ) : previewImages && previewImages.length > 0 ? (
+                ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
                   <div className="flex flex-col gap-4 items-center justify-center py-4">
-                    {previewImages.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt="Resume Preview"
-                        className="w-full h-auto md:max-h-[80vh] max-h-[60vh] object-contain rounded cursor-zoom-in"
-                        onClick={() => setFullScreenImg(img)}
-                      />
+                    {previewImages.classic.map((img, idx) => (
+                      <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+                        <img
+                          src={img}
+                          alt="Resume Preview"
+                          className="w-full h-auto object-contain rounded cursor-zoom-in"
+                          onClick={() => setFullScreenImg(img)}
+                        />
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+                              <MdOutlineRemoveRedEye className="text-white " size={36} />
+                          <span className="text-white text-lg font-bold">Locked Content</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center min-h-[200px]">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {String(language) === 'ar' ? 'اضغط تحميل لعرض المعاينة' : 'Press Download to preview'}
-                    </p>
-                  </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
           {/* Modern Resume Images */}
           <div
-            className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${
+            className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${
               isDarkMode
                 ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                 : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
@@ -541,25 +599,24 @@ export const PreviewPage: React.FC = () => {
                       {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
                     </button>
                   </div>
-                ) : previewImages && previewImages.length > 0 ? (
+                ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
                   <div className="flex flex-col gap-4 items-center justify-center py-4">
-                    {previewImages.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt="Resume Preview"
-                        className="w-full h-auto md:max-h-[80vh] max-h-[60vh] object-contain rounded cursor-zoom-in"
-                        onClick={() => setFullScreenImg(img)}
-                      />
+                    {previewImages.modern.map((img, idx) => (
+                      <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+                        <img
+                          src={img}
+                          alt="Resume Preview"
+                          className="w-full h-auto object-contain rounded cursor-zoom-in"
+                          onClick={() => setFullScreenImg(img)}
+                        />
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+                              <MdOutlineRemoveRedEye className="text-white " size={36} />
+                          <span className="text-white text-lg font-bold">Locked Content</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center min-h-[200px]">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {String(language) === 'ar' ? 'اضغط تحميل لعرض المعاينة' : 'Press Download to preview'}
-                    </p>
-                  </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
@@ -600,9 +657,9 @@ export const PreviewPage: React.FC = () => {
             </button>
           </div>
           {/* Mobile Image Preview Logic */}
-          <div className={`rounded-2xl overflow-hidden ${isDarkMode ? "bg-gray-900/50 border border-gray-800" : "bg-white border border-gray-200 shadow-lg"}`}>
+          <div className={`rounded-2xl  overflow-y-auto ${isDarkMode ? "bg-gray-900/50 border border-gray-800" : "bg-white border border-gray-200 shadow-lg"}`}>
             <div className="p-6 pb-4">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center  justify-between mb-4">
                 <h2 className="text-2xl font-bold">
                   {activePreview === "classic"
                     ? String(language) === "ar"
@@ -633,7 +690,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[30vh] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -657,25 +714,24 @@ export const PreviewPage: React.FC = () => {
                       {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
                     </button>
                   </div>
-                ) : previewImages && previewImages.length > 0 ? (
+                ) : previewImages && previewImages[activePreview] && previewImages[activePreview].length > 0 ? (
                   <div className="flex flex-col gap-4 items-center justify-center py-4">
-                    {previewImages.map((img: string, idx: number) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt="Resume Preview"
-                        className="w-full h-auto max-h-[60vh] object-contain rounded cursor-zoom-in"
-                        onClick={() => setFullScreenImg(img)}
-                      />
+                    {previewImages[activePreview].map((img: string, idx: number) => (
+                      <div key={idx} className="relative w-full h-auto max-h-[60vh]">
+                        <img
+                          src={img}
+                          alt="Resume Preview"
+                          className="w-full h-auto object-contain rounded cursor-zoom-in"
+                          onClick={() => setFullScreenImg(img)}
+                        />
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+                             <MdOutlineRemoveRedEye className="text-white " size={36} />
+                          <span className="text-white text-lg font-bold">Locked Content</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center min-h-[200px]">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {String(language) === 'ar' ? 'اضغط تحميل لعرض المعاينة' : 'Press Download to preview'}
-                    </p>
-                  </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
@@ -698,7 +754,7 @@ export const PreviewPage: React.FC = () => {
       {/* Full Screen Image Modal for Mobile */}
       {fullScreenImg && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center  justify-center bg-black bg-opacity-90 backdrop-blur-sm"
           onClick={() => setFullScreenImg(null)}
         >
           <img

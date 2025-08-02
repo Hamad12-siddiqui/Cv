@@ -9,6 +9,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useLanguage } from '../hooks/useLanguage';
 import { Loader2, Download, Eye, ArrowLeft, FileText, AlertCircle, ExternalLink } from 'lucide-react';
 import ScrollToTop from '../components/ScrollToTop';
+import { MdOutlineRemoveRedEye } from "react-icons/md";
 interface LocationState {
   session_id: string;
   cover_letter_filename: string;
@@ -389,13 +390,22 @@ export function CoverLetterPreview() {
                   ) : mobileImageUrls.length > 0 ? (
                     <div className="flex flex-col gap-4 items-center">
                       {mobileImageUrls.map((imgUrl, idx) => (
-                        <img
-                          key={idx}
-                          src={imgUrl}
-                          alt={`Cover Letter Preview ${idx + 1}`}
-                          className="w-full h-auto max-h-[90vh] object-fill  rounded-lg cursor-pointer"
-                          onClick={() => setFullScreenImg(imgUrl)}
-                        />
+                        <div key={idx} className="relative group">
+                          <img
+                            src={imgUrl}
+                            alt={`Cover Letter Preview ${idx + 1}`}
+                            className="w-full h-auto max-h-[90vh] object-fill rounded-lg cursor-pointer"
+                            onClick={() => setFullScreenImg(imgUrl)}
+                          />
+                         
+                          <div className="absolute   flex-col inset-0 bg-black bg-opacity-70 transition-opacity duration-300 rounded-lg flex items-center justify-center">
+                          <MdOutlineRemoveRedEye  className='text-white' size={40} />
+                            <span className="text-white text-lg font-semibold">
+                              {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlock The Content'}
+                            </span>
+                          </div>
+                        
+                        </div>
                       ))}
                     </div>
                   ) : null}
