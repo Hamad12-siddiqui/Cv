@@ -235,7 +235,7 @@ export function CoverLetterPreview() {
       <main className="container mx-auto px-4 py-8 pt-24">
         {/* Payment Form Modal */}
         {showPaymentForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50  flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
             <div className={`relative w-full max-w-md p-6 rounded-xl ${
               isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
             }`}>

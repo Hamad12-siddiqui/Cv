@@ -9,7 +9,7 @@ import ScrollToTop from './ScrollToTop';
 import PaymentForm from './PaymentForm';
 import { toast } from 'react-toastify';
 import { MdOutlineRemoveRedEye } from "react-icons/md";
-import { ArrowLeft, Copy, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Copy, CheckCheck, X } from 'lucide-react';
 
 interface ResumePreviewImages {
   'temp_classic_cv.pdf': string[];
@@ -524,14 +524,19 @@ const { isDarkMode, toggleDarkMode } = useTheme();
 
         {/* Payment Form Modal */}
         {showPaymentForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className={`relative w-full max-w-md p-6 rounded-lg ${
-              isDarkMode ? 'bg-gray-900' : 'bg-white'
-            }`}>
-              <PaymentForm onSuccess={handlePaymentSuccess} />
+            <div className="fixed inset-0 bg-black bg-opacity-50 mt-10 flex items-center justify-center z-50">
+              <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                <button
+                  onClick={() => setShowPaymentForm(false)}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                <PaymentForm onSuccess={handlePaymentSuccess} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
       </main>
 
       <Footer isDarkMode={isDarkMode} language={language} />

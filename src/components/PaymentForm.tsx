@@ -1,5 +1,9 @@
 import React, { useState, ChangeEvent } from 'react';
 import { createToken, createCharge } from '../services/paymentService';
+import { useTheme } from '../hooks/useTheme';
+import { useLanguage } from '../hooks/useLanguage';
+
+
 
 interface PaymentFormProps {
   onSuccess?: () => void;
@@ -113,6 +117,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
         return type;
     }
   };
+   
 
   return (
     <div className="relative w-full  mb-4">
@@ -123,7 +128,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
         onChange={handleInputValidation}
         required={required}
         placeholder={placeholder}
-        className={`w-full px-4 py-3  text-sm text-gray-900 placeholder-gray-400 border rounded-lg focus:outline-none transition-all duration-200 bg-white ${
+        className={`w-full px-4 py-3  text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white border rounded-lg focus:outline-none transition-all duration-200 bg-white dark:bg-gray-800 ${
           error ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-black'
         }`}
         autoComplete={name === 'number' ? 'cc-number' : 
@@ -133,7 +138,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
                      name === 'email' ? 'email' :
                      'off'}
       />
-      <label className="absolute border  -top-2.5 left-2 bg-white px-2 text-xs text-gray-600">{label}</label>
+      <label className="absolute border  -top-2.5 left-2 bg-white dark:bg-gray-800 px-2 text-xs text-gray-600 dark:text-white">{label}</label>
       {error && (
         <p className="mt-1 text-xs text-red-500">{error}</p>
       )}
@@ -211,6 +216,42 @@ const validatePhone = (countryCode: string, number: string): boolean => {
 };
 
 const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+
+  const labels = {
+    cardNumber: language === 'ar' ? 'رقم البطاقة' : 'Card Number',
+    month: language === 'ar' ? 'شهر' : 'Month',
+    year: language === 'ar' ? 'سنة' : 'Year',
+    cvc: language === 'ar' ? 'رمز التحقق' : 'CVC',
+    cardholderName: language === 'ar' ? 'اسم حامل البطاقة' : 'Cardholder Name',
+    country: language === 'ar' ? 'البلد' : 'Country',
+    addressLine1: language === 'ar' ? 'العنوان 1' : 'Address Line 1',
+    city: language === 'ar' ? 'المدينة' : 'City',
+    street: language === 'ar' ? 'الشارع' : 'Street',
+    avenue: language === 'ar' ? 'الجادة' : 'Avenue',
+    firstName: language === 'ar' ? 'الاسم الأول' : 'First Name',
+    lastName: language === 'ar' ? 'اسم العائلة' : 'Last Name',
+    middleName: language === 'ar' ? 'الاسم الأوسط' : 'Middle Name',
+    email: language === 'ar' ? 'البريد الإلكتروني' : 'Email',
+    countryCode: language === 'ar' ? 'رمز الدولة' : 'Country Code',
+    phoneNumber: language === 'ar' ? 'رقم الهاتف' : 'Phone Number',
+    continueToAddress: language === 'ar' ? 'متابعة إلى العنوان' : 'Continue to Address',
+    back: language === 'ar' ? 'رجوع' : 'Back',
+    continue: language === 'ar' ? 'متابعة' : 'Continue',
+    completePayment: language === 'ar' ? 'إتمام الدفع' : 'Complete Payment',
+    processing: language === 'ar' ? 'جارٍ المعالجة...' : 'Processing...'
+  };
+
+  const placeholders = {
+    cardNumber: language === 'ar' ? '١٢٣٤ ٥٦٧٨ ٩٠١٢ ٣٤٥٦' : '1234 5678 9012 3456',
+    month: language === 'ar' ? 'شهر' : 'MM',
+    year: language === 'ar' ? 'سنة' : 'YYYY',
+    cvc: language === 'ar' ? '١٢٣' : '123',
+    cardholderName: language === 'ar' ? 'محمد علي' : 'John Doe',
+    countryCode: language === 'ar' ? '+٩٦٦' : '+1'
+  };
+
   const [form, setForm] = useState<FormData>({
     number: '',
     exp_month: '',
@@ -368,61 +409,59 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className=" bg-gray-50     ">
-      <div className="max-w-md w-full mx-auto space-y-8  ">
+    <div className=" bg-gray-50 dark:bg-gray-800">
+      <div className="max-w-md w-full mx-auto space-y-8 dark:bg-gray-900">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Secure Payment
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+            {language === 'ar' ? 'الدفع الآمن' : 'Secure Payment'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Complete your payment securely with our encrypted payment system
-          </p>
+         
         </div>
 
-        
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-sm">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white dark:bg-gray-900 py-2  px-8 rounded-xl shadow-sm">
           {activeStep === 1 && (
             <div className="space-y-4 animate-fadeIn">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Card Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                {language === 'ar' ? 'معلومات البطاقة' : 'Card Information'}
+              </h3>
               <InputField 
-                label="Card Number" 
+                label={labels.cardNumber} 
                 name="number" 
-                placeholder="1234 5678 9012 3456" 
+                placeholder={placeholders.cardNumber} 
                 onChange={handleChange} 
                 value={form.number}
                 error={errors.number}
               />
               <div className="grid grid-cols-3 gap-4">
                 <InputField 
-                  label="Month" 
+                  label={labels.month} 
                   name="exp_month" 
-                  placeholder="MM" 
+                  placeholder={placeholders.month} 
                   onChange={handleChange} 
                   value={form.exp_month}
                   error={errors.exp_month}
                 />
                 <InputField 
-                  label="Year" 
+                  label={labels.year} 
                   name="exp_year" 
-                  placeholder="YYYY" 
+                  placeholder={placeholders.year} 
                   onChange={handleChange} 
                   value={form.exp_year}
                   error={errors.exp_year}
                 />
                 <InputField 
-                  label="CVC" 
+                  label={labels.cvc} 
                   name="cvc" 
-                  placeholder="123" 
+                  placeholder={placeholders.cvc} 
                   onChange={handleChange} 
                   value={form.cvc}
                   error={errors.cvc}
                 />
               </div>
               <InputField 
-                label="Cardholder Name" 
+                label={labels.cardholderName} 
                 name="name" 
-                placeholder="John Doe" 
+                placeholder={placeholders.cardholderName} 
                 onChange={handleChange} 
                 value={form.name}
                 error={errors.name}
@@ -430,46 +469,48 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
               <button
                 type="button"
                 onClick={() => handleStepChange(2)}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-900 focus:outline-none transition-all duration-200"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white dark:text-gray-800 bg-black dark:bg-white focus:outline-none transition-all duration-200"
               >
-                Continue to Address
+                {labels.continueToAddress}
               </button>
             </div>
           )}
 
           {activeStep === 2 && (
             <div className="space-y-4 animate-fadeIn">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Address Details</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {language === 'ar' ? 'تفاصيل العنوان' : 'Address Details'}
+              </h3>
               <InputField 
-                label="Country" 
+                label={labels.country} 
                 name="country" 
                 onChange={handleChange} 
                 value={form.country}
                 error={errors.country}
               />
               <InputField 
-                label="Address Line 1" 
+                label={labels.addressLine1} 
                 name="line1" 
                 onChange={handleChange} 
                 value={form.line1}
                 error={errors.line1}
               />
               <InputField 
-                label="City" 
+                label={labels.city} 
                 name="city" 
                 onChange={handleChange} 
                 value={form.city}
                 error={errors.city}
               />
               <InputField 
-                label="Street" 
+                label={labels.street} 
                 name="street" 
                 onChange={handleChange} 
                 value={form.street}
                 error={errors.street}
               />
               <InputField 
-                label="Avenue" 
+                label={labels.avenue} 
                 name="avenue" 
                 onChange={handleChange} 
                 value={form.avenue}
@@ -481,14 +522,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
                   onClick={() => handleStepChange(1)}
                   className="flex-1 py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition-all duration-200"
                 >
-                  Back
+                  {labels.back}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleStepChange(3)}
                   className="flex-1 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-900 focus:outline-none transition-all duration-200"
                 >
-                  Continue
+                  {labels.continue}
                 </button>
               </div>
             </div>
@@ -496,17 +537,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
 
           {activeStep === 3 && (
             <div className="space-y-4 animate-fadeIn">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {language === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
+              </h3>
               <div className="grid grid-cols-2 gap-4">
                 <InputField 
-                  label="First Name" 
+                  label={labels.firstName} 
                   name="first_name" 
                   onChange={handleChange} 
                   value={form.first_name}
                   error={errors.first_name}
                 />
                 <InputField 
-                  label="Last Name" 
+                  label={labels.lastName} 
                   name="last_name" 
                   onChange={handleChange} 
                   value={form.last_name}
@@ -514,14 +557,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
                 />
               </div>
               <InputField 
-                label="Middle Name" 
+                label={labels.middleName} 
                 name="middle_name" 
                 required={false} 
                 onChange={handleChange} 
                 value={form.middle_name}
               />
               <InputField 
-                label="Email" 
+                label={labels.email} 
                 name="email" 
                 type="email" 
                 onChange={handleChange} 
@@ -530,15 +573,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
               />
               <div className="grid grid-cols-2 gap-4">
                 <InputField 
-                  label="Country Code" 
+                  label={labels.countryCode} 
                   name="phone_country_code" 
-                  placeholder="+1" 
+                  placeholder={placeholders.countryCode} 
                   onChange={handleChange} 
                   value={form.phone_country_code}
                   error={errors.phone_country_code}
                 />
                 <InputField 
-                  label="Phone Number" 
+                  label={labels.phoneNumber} 
                   name="phone_number" 
                   onChange={handleChange} 
                   value={form.phone_number}
@@ -551,7 +594,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
                   onClick={() => handleStepChange(2)}
                   className="flex-1 py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition-all duration-200"
                 >
-                  Back
+                  {labels.back}
                 </button>
                 <button
                   type="submit"
@@ -561,10 +604,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
                   {status.loading ? (
                     <div className="flex items-center justify-center space-x-2">
                       <LoadingSpinner />
-                      <span>Processing...</span>
+                      <span>{labels.processing}</span>
                     </div>
                   ) : (
-                    'Complete Payment'
+                    labels.completePayment
                   )}
                 </button>
               </div>

@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { ArrowLeft, Linkedin, X, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import PaymentForm from './PaymentForm';
+import { MdOutlineRemoveRedEye } from 'react-icons/md';
 
 interface LinkedInData {
   tagLine: string;
@@ -18,11 +19,13 @@ interface LinkedInData {
 export const LinkedInPreview: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDarkMode } = useTheme();
-  const { language } = useLanguage();
+
+ const { isDarkMode, toggleDarkMode } = useTheme()
+  const { language, toggleLanguage } = useLanguage()
   const linkedInData = location.state as LinkedInData;
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [hasPaid, setHasPaid] = useState(false);
+  
 
   const handleBack = () => {
     navigate('/');
@@ -84,8 +87,8 @@ export const LinkedInPreview: React.FC = () => {
       <Header
         isDarkMode={isDarkMode}
         language={language}
-        toggleDarkMode={() => {}}
-        toggleLanguage={() => {}}
+        toggleDarkMode={toggleDarkMode}
+        toggleLanguage={toggleLanguage}
       />
       <main className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -119,7 +122,7 @@ export const LinkedInPreview: React.FC = () => {
 
           {/* Payment Form Modal */}
           {showPaymentForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 mt-10 flex items-center justify-center z-50">
               <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <button
                   onClick={() => setShowPaymentForm(false)}
@@ -156,18 +159,24 @@ export const LinkedInPreview: React.FC = () => {
                 )}
               </div>
               <p 
-                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                 onCopy={preventCopy}
                 onCut={preventCopy}
                 onContextMenu={preventCopy}
                 style={{ 
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  MozUserSelect: 'none',
-                  msUserSelect: 'none'
+                  userSelect: hasPaid ? 'text' : 'none',
+                  WebkitUserSelect: hasPaid ? 'text' : 'none',
+                  MozUserSelect: hasPaid ? 'text' : 'none',
+                  msUserSelect: hasPaid ? 'text' : 'none'
                 }}
               >
-                {linkedInData.tagLine}
+                {!hasPaid && (
+                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg z-10 flex flex-col items-center justify-center text-white text-lg gap-2">
+                    <MdOutlineRemoveRedEye className="w-6 h-6" />
+                    {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
+                  </span>
+                )}
+                <span className="relative">{linkedInData.tagLine}</span>
               </p>
             </div>
             {/* Summary Section */}
@@ -192,18 +201,24 @@ export const LinkedInPreview: React.FC = () => {
                 )}
               </div>
               <p 
-                className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} whitespace-pre-wrap`}
+                className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} whitespace-pre-wrap`}
                 onCopy={preventCopy}
                 onCut={preventCopy}
                 onContextMenu={preventCopy}
                 style={{ 
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  MozUserSelect: 'none',
-                  msUserSelect: 'none'
+                  userSelect: hasPaid ? 'text' : 'none',
+                  WebkitUserSelect: hasPaid ? 'text' : 'none',
+                  MozUserSelect: hasPaid ? 'text' : 'none',
+                  msUserSelect: hasPaid ? 'text' : 'none'
                 }}
               >
-                {linkedInData.profileSummary}
+                {!hasPaid && (
+                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex flex-col z-10 items-center justify-center text-white text-lg gap-2">
+                    <MdOutlineRemoveRedEye className="w-6 h-6" />
+                    {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
+                  </span>
+                )}
+                <span className="relative">{linkedInData.profileSummary}</span>
               </p>
             </div>
             {/* Instructions */}
