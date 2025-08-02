@@ -131,10 +131,14 @@ export const createToken = async (formData: TokenFormData): Promise<TokenRespons
   return response.data;
 };
 
-export const createCharge = async (tokenId: string, customerData: CustomerData): Promise<ChargeResponse> => {
+export const createCharge = async (
+  tokenId: string,
+  customerData: CustomerData,
+  amount: number // <-- Add amount parameter
+): Promise<ChargeResponse> => {
   const payload: ChargePayload = {
-    amount: 1000,
-    currency: "usd",
+    amount, // <-- Use dynamic amount here
+    currency: "SAR",
     customer_initiated: true,
     threeDSecure: true,
     save_card: true,

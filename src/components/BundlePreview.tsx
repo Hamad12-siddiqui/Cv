@@ -532,7 +532,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                 >
                   <X className="w-6 h-6" />
                 </button>
-                <PaymentForm onSuccess={handlePaymentSuccess} />
+                <PaymentForm onSuccess={handlePaymentSuccess} completePaymentButtonText="Pay Now 399 SAR" amount={399} />
               </div>
             </div>
           )}

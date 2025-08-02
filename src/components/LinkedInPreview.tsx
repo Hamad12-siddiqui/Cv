@@ -130,8 +130,11 @@ export const LinkedInPreview: React.FC = () => {
                 >
                   <X className="w-6 h-6" />
                 </button>
-                <PaymentForm onSuccess={handlePaymentSuccess} />
-              </div>
+<PaymentForm 
+  onSuccess={handlePaymentSuccess}
+  completePaymentButtonText="Pay Now 199 SAR"
+  amount={199}
+/>              </div>
             </div>
           )}
 

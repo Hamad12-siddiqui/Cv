@@ -6,7 +6,11 @@ import { useLanguage } from '../hooks/useLanguage';
 
 
 interface PaymentFormProps {
-  onSuccess?: () => void;
+  onSuccess: () => void;
+  completePaymentButtonText: string;
+  amount: number; // <-- Add amount prop
+  backButtonText?: string;
+  continueButtonText?: string;
 }
 
 interface FormData {
@@ -215,8 +219,14 @@ const validatePhone = (countryCode: string, number: string): boolean => {
   return validCountryCode && validNumber;
 };
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+const PaymentForm: React.FC<PaymentFormProps> = ({
+  onSuccess,
+  completePaymentButtonText,
+  amount,
+  backButtonText,
+  continueButtonText,
+}) => {
+
   const { language, toggleLanguage } = useLanguage();
 
   const labels = {
@@ -237,9 +247,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
     countryCode: language === 'ar' ? 'رمز الدولة' : 'Country Code',
     phoneNumber: language === 'ar' ? 'رقم الهاتف' : 'Phone Number',
     continueToAddress: language === 'ar' ? 'متابعة إلى العنوان' : 'Continue to Address',
-    back: language === 'ar' ? 'رجوع' : 'Back',
-    continue: language === 'ar' ? 'متابعة' : 'Continue',
-    completePayment: language === 'ar' ? 'إتمام الدفع' : 'Complete Payment',
+    back: backButtonText || (language === 'ar' ? 'رجوع' : 'Back'),
+    continue: continueButtonText || (language === 'ar' ? 'متابعة' : 'Continue'),
+    completePayment: completePaymentButtonText || (language === 'ar' ? 'إتمام الدفع' : 'Complete Payment'),
     processing: language === 'ar' ? 'جارٍ المعالجة...' : 'Processing...'
   };
 
@@ -392,7 +402,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSuccess }) => {
 
       if (!tokenId) throw new Error("Token ID not returned");
 
-      const chargeResponse = await createCharge(tokenId, form);
+      const chargeResponse = await createCharge(tokenId, form, amount);
       setStatus({ loading: false, message: 'Payment successful! 🎉', error: false });
       
       // If payment is successful and onSuccess callback is provided, call it
