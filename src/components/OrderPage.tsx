@@ -91,16 +91,22 @@ export const OrderPage: React.FC = () => {
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (uploadedFiles.length >= 1) {
+      toast.error(language === 'ar'
+        ? 'يمكنك رفع ملف PDF واحد فقط.'
+        : 'You can only upload one PDF file.'
+      );
+      return;
+    }
     const validFiles = acceptedFiles.filter(validateFile);
-
     if (validFiles.length > 0) {
-      setUploadedFiles(prev => [...prev, ...validFiles]);
+      setUploadedFiles(prev => prev.length === 0 ? validFiles.slice(0, 1) : prev);
       toast.success(language === 'ar'
-        ? `تم إضافة ${validFiles.length} ملف بنجاح!`
-        : `${validFiles.length} file(s) added successfully!`
+        ? `تم إضافة ملف واحد بنجاح!`
+        : '1 file added successfully!'
       );
     }
-  }, [language]);
+  }, [language, uploadedFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
