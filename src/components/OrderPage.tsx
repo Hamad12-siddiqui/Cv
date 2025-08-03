@@ -158,6 +158,9 @@ export const OrderPage: React.FC = () => {
     console.log('Job Title:', formData.jobTitle);
     console.log('Job Description length:', formData.jobDescription.length);
 
+    // Record start time
+    const startTime = Date.now();
+
     const response = await axios.post(`${API_BASE_URL}/generate-cover-letter`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
@@ -174,6 +177,12 @@ export const OrderPage: React.FC = () => {
     });
     
     console.log('Cover letter generation response:', response.data);
+
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+    
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
 
     return response.data;
   };
@@ -322,7 +331,8 @@ export const OrderPage: React.FC = () => {
         if (coverLetterResponse.email && coverLetterResponse.phone) {
           await reportFailedResume(
             coverLetterResponse.email,
-            coverLetterResponse.phone
+            coverLetterResponse.phone,
+            coverLetterResponse.processingTimeSeconds // pass processing time if available
           );
         }
 
@@ -385,7 +395,8 @@ export const OrderPage: React.FC = () => {
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
-            responseData.phone
+            responseData.phone,
+            responseData.processingTimeSeconds // pass processing time if available
           );
         }
 
