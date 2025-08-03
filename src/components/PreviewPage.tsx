@@ -18,6 +18,8 @@ interface LocationState {
   sessionId: string
   classicResumeUrl: string
   modernResumeUrl: string
+  email?: string
+  phone?: string
 }
 export const PreviewPage: React.FC = () => {
   const location = useLocation()
@@ -384,7 +386,39 @@ export const PreviewPage: React.FC = () => {
   };
 
   // Handle successful payment
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
+    let resumeId;
+    try {
+      // Get resume_id from /dashboard/resumes/failed
+      if (state?.email && state?.phone) {
+        const failedResp = await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/failed',
+          { email: state?.email, contact: state.phone },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        resumeId = failedResp.data?.resume_id;
+      }
+      // Report resume success
+      if (resumeId) {
+        await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/successful',
+          { resume_id: resumeId },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      // Report sale with tax
+      const amount = 299; // Use the amount from /create-charge or PaymentForm
+      const tax = +(amount * 0.029).toFixed(2);
+      await axios.post(
+        'https://admin.cvaluepro.com/dashboard/sales/',
+        { amount, tax },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+    } catch (err) {
+      // Optionally log/report error, but continue
+      console.error('Resume/sale reporting error:', err);
+    }
+
     // Close payment form
     setShowPaymentForm(false);
 
@@ -429,7 +463,7 @@ export const PreviewPage: React.FC = () => {
       />
       {/* Mobile Screenshot/Recording Overlay */}
       {isMobile && showMobileOverlay && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-lg">
+        <div className="fixed inset-0 z-[40] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-lg">
           <div className="text-center text-white p-8 rounded-2xl bg-black bg-opacity-70 border-2 border-red-600 shadow-2xl">
             <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             <h2 className="text-2xl font-bold mb-2">{String(language) === 'ar' ? 'تم تعطيل المعاينة مؤقتًا' : 'Preview Disabled'}</h2>
@@ -469,7 +503,7 @@ export const PreviewPage: React.FC = () => {
         <div className="hidden lg:grid lg:grid-cols-2  gap-20 w-[80%] mx-auto">
           {/* Classic Resume Images */}
           <div
-            className={`group relative rounded-2xl overflow-y-auto h-[90vh] transition-all duration-300 ${
+            className={`group relative rounded-2xl h-[90vh] transition-all duration-300 ${
               isDarkMode
                 ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                 : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
@@ -525,16 +559,17 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center py-4">
+                  <div className="flex flex-col gap-4 items-center justify-center py-4 overflow-y-auto h-[calc(90vh-120px)]">
                     {previewImages.classic.map((img, idx) => (
-                      <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+                      <div key={idx} className="relative w-full h-full">
                         <img
                           src={img}
                           alt="Resume Preview"
-                          className="w-full h-auto object-contain rounded cursor-zoom-in"
+                          className="w-full h-full object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+
+                        <div className="absolute inset-0 bg-black opacity-50 z-40 rounded flex flex-col items-center justify-center w-full h-full">
                               <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>
@@ -718,14 +753,14 @@ export const PreviewPage: React.FC = () => {
                 ) : previewImages && previewImages[activePreview] && previewImages[activePreview].length > 0 ? (
                   <div className="flex flex-col gap-4 items-center justify-center py-4">
                     {previewImages[activePreview].map((img: string, idx: number) => (
-                      <div key={idx} className="relative w-full h-auto max-h-[60vh]">
+                      <div key={idx} className="relative w-full h-full">
                         <img
                           src={img}
                           alt="Resume Preview"
-                          className="w-full h-auto object-contain rounded cursor-zoom-in"
+                          className="w-full h-full object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex flex-col items-center justify-center w-full h-full">
                              <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>

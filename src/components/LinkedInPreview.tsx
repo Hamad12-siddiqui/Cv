@@ -8,6 +8,7 @@ import { ArrowLeft, Linkedin, X, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import PaymentForm from './PaymentForm';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
+import axios from 'axios';
 
 interface LinkedInData {
   tagLine: string;
@@ -22,7 +23,7 @@ export const LinkedInPreview: React.FC = () => {
 
  const { isDarkMode, toggleDarkMode } = useTheme()
   const { language, toggleLanguage } = useLanguage()
-  const linkedInData = location.state as LinkedInData;
+  const linkedInData = location.state as LinkedInData & { resume_id?: number };
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [hasPaid, setHasPaid] = useState(false);
   
@@ -37,9 +38,50 @@ export const LinkedInPreview: React.FC = () => {
   };
 
   // Handle successful payment
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     setShowPaymentForm(false);
     setHasPaid(true);
+
+    // Call successful resume API if resume_id is present
+    if (linkedInData.resume_id) {
+      try {
+        console.log('Calling successful resume API with resume_id:', linkedInData.resume_id);
+        const resp = await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/successful',
+          { resume_id: linkedInData.resume_id },
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        console.log('Successful resume API response:', resp.data);
+      } catch (err) {
+        console.error('Error calling successful resume API:', err);
+      }
+    }
+
+    // Call sales API with amount and tax
+    try {
+      const amount = 199; // Replace with dynamic value if available from PaymentForm or /create-charge
+      const tax = +(amount * 0.029).toFixed(2); // 2.9% tax
+      console.log('Calling sales API with:', { amount, tax });
+      const salesResp = await axios.post(
+        'https://admin.cvaluepro.com/dashboard/sales/',
+        { amount, tax },
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log('Sales API response:', salesResp.data);
+    } catch (err) {
+      console.error('Error calling sales API:', err);
+    }
+
     toast.success(
       language === 'ar'
         ? 'تم الدفع بنجاح! يمكنك الآن نسخ المحتوى'

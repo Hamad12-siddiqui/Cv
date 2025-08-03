@@ -236,6 +236,34 @@ export const OrderPage: React.FC = () => {
     return response.data;
   };
 
+  const reportFailedResume = async (email: string, phone: string) => {
+    const payload = {
+      email,
+      contact: phone // only send 'contact', not 'phone'
+    };
+    try {
+      console.log('Reporting failed resume payload:', payload);
+      const resp = await axios.post(
+        'https://admin.cvaluepro.com/dashboard/resumes/failed',
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      // Return resume_id if present
+      return resp.data?.resume_id;
+    } catch (err: any) {
+      if (err.response) {
+        console.error('Failed to report resume failure:', {
+          status: err.response.status,
+          data: err.response.data,
+          payload,
+        });
+      } else {
+        console.error('Failed to report resume failure:', err, payload);
+      }
+      return undefined;
+    }
+  };
+
   const handleUpload = async () => {
     if (uploadedFiles.length === 0) {
       toast.error(language === 'ar'
@@ -262,6 +290,14 @@ export const OrderPage: React.FC = () => {
           generateLinkedIn(),
           generateResume()
         ]);
+
+        // Immediately report failed resume for cover letter
+        if (coverLetterResponse.email && coverLetterResponse.phone) {
+          await reportFailedResume(
+            coverLetterResponse.email,
+            coverLetterResponse.phone
+          );
+        }
 
         // Fetch preview images for cover letter and resume
         const API_BASE_URL = 'https://ai.cvaluepro.com';
@@ -317,38 +353,65 @@ export const OrderPage: React.FC = () => {
       } else if (serviceType === 'cover-letter') {
         responseData = await generateCoverLetter();
         
-        // Log the response to debug the filename issue
-        console.log('Cover letter generation response:', responseData);
-        
+        // Immediately report failed resume for cover letter
+        let resumeId;
+        if (responseData.email && responseData.phone) {
+          resumeId = await reportFailedResume(
+            responseData.email,
+            responseData.phone
+          );
+        }
+
         navigate('/cover-letter-preview', {
           state: {
             session_id: responseData.session_id,
             cover_letter_filename: responseData.cover_letter_filename || responseData.file_name,
             email: responseData.email,
-            phone: responseData.phone
+            phone: responseData.phone,
+            resume_id: resumeId // Pass the integer resume_id here
           }
         });
       } else if (serviceType === 'linkedin') {
         const linkedinResponse = await generateLinkedIn();
-        
+
+        // Immediately report failed resume for LinkedIn
+        let resumeId;
+        if (linkedinResponse.email && linkedinResponse.phone) {
+          resumeId = await reportFailedResume(
+            linkedinResponse.email,
+            linkedinResponse.phone
+          );
+        }
+
         navigate('/linkedin-preview', {
           state: {
             tagLine: linkedinResponse.tag_line,
             profileSummary: linkedinResponse.profile_summary,
             email: linkedinResponse.email,
-            phone: linkedinResponse.phone
+            phone: linkedinResponse.phone,
+            resume_id: resumeId // Pass resume_id to LinkedInPreview
           }
         });
       } else {
         responseData = await generateResume();
         
+        // Immediately report failed resume for CV enhancement
+        let resumeId;
+        if (responseData.email && responseData.phone) {
+          resumeId = await reportFailedResume(
+            responseData.email,
+            responseData.phone // will be sent as 'contact'
+          );
+        }
+
         navigate('/preview', {
           state: {
             sessionId: responseData.session_id,
             classicResumeUrl: responseData.classic_resume_url,
             modernResumeUrl: responseData.modern_resume_url,
             email: responseData.email,
-            phone: responseData.phone
+            phone: responseData.phone,
+            resume_id: resumeId // optionally pass resume_id if needed
           }
         });
       }

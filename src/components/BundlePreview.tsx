@@ -76,6 +76,42 @@ const { isDarkMode, toggleDarkMode } = useTheme();
     
     if (state) {
       try {
+        // First, get the resume_id from the failed resume API
+        const failedResumeResponse = await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/failed',
+          { 
+            email: state.resume.email,
+            contact: state.resume.phone
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        const resumeId = failedResumeResponse.data?.resume_id;
+        
+        // Now report successful payment with the correct resume_id
+        if (resumeId) {
+          // First call successful resume API
+          await axios.post(
+            'https://admin.cvaluepro.com/dashboard/resumes/successful',
+            { resume_id: resumeId },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+
+          // Calculate and report sales with tax
+          const amount = 399; // Bundle price
+          const tax = +(amount * 0.029).toFixed(2); // Calculate 2.9% tax and round to 2 decimal places
+
+          // Call sales API
+          await axios.post(
+            'https://admin.cvaluepro.com/dashboard/sales/',
+            { 
+              amount,
+              tax
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+
         const API_BASE_URL = 'https://ai.cvaluepro.com';
         
         // Validate and fetch resume images first

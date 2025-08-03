@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -13,6 +13,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 interface LocationState {
   session_id: string;
   cover_letter_filename: string;
+  resume_id?: number; // add resume_id as optional number
 }
 // Mobile detection utility
 const isMobileDevice = (): boolean => {
@@ -27,6 +28,8 @@ export function CoverLetterPreview() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState;
+  // Store resume_id (integer) for API call after payment
+  const resumeIdRef = useRef<number | null>(state?.resume_id ?? null);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
@@ -195,7 +198,34 @@ export function CoverLetterPreview() {
     setShowPaymentForm(true);
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
+    // Calculate tax and call sales API before reporting resume success
+    const amount = 149;
+    const tax = parseFloat((amount * 0.029).toFixed(2));
+    try {
+      await axios.post(
+        'https://admin.cvaluepro.com/dashboard/sales/',
+        { amount, tax },
+        { headers: { 'Content-Type': 'application/json', 'accept': 'application/json' } }
+      );
+    } catch (err: any) {
+      // If sales API fails, show error and do not proceed
+      toast.error(language === 'ar' ? 'فشل معالجة الدفع' : 'Payment processing failed');
+      return;
+    }
+    // Call the "successful" API after payment and sales API
+    if (resumeIdRef.current != null) {
+      try {
+        await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/successful',
+          { resume_id: resumeIdRef.current },
+          { headers: { 'Content-Type': 'application/json', 'accept': 'application/json' } }
+        );
+      } catch (err: any) {
+        // Log error, but don't block download/navigation
+        console.error('Failed to report successful resume:', err);
+      }
+    }
     // Download PDF for both mobile and desktop
     if (!pdfUrl || !pdfBlob) return;
     const link = document.createElement('a');
