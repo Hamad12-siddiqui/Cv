@@ -19,6 +19,7 @@ interface UploadResponse {
   cover_letter_filename?: string;
   email?: string;
   phone?: string;
+  processingTimeSeconds?: number;
 }
 
 interface FormData {
@@ -218,6 +219,9 @@ export const OrderPage: React.FC = () => {
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
 
+    // Record start time
+    const startTime = Date.now();
+
     const response = await axios.post(`${API_BASE_URL}/upload-resume`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
@@ -233,10 +237,16 @@ export const OrderPage: React.FC = () => {
       },
     });
 
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
+
     return response.data;
   };
 
-  const reportFailedResume = async (email: string, phone: string) => {
+  const reportFailedResume = async (email: string, phone: string, processingTimeSeconds?: number) => {
     const payload = {
       email,
       contact: phone // only send 'contact', not 'phone'
@@ -248,6 +258,23 @@ export const OrderPage: React.FC = () => {
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );
+      
+      // If we have both resume_id and processing time, report it
+      if (resp.data?.resume_id && processingTimeSeconds !== undefined) {
+        try {
+          await axios.post(
+            'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
+            {
+              resume_id: resp.data.resume_id,
+              processing_time_seconds: Math.round(processingTimeSeconds)
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Failed to record processing time:', error);
+        }
+      }
+      
       // Return resume_id if present
       return resp.data?.resume_id;
     } catch (err: any) {
@@ -400,7 +427,8 @@ export const OrderPage: React.FC = () => {
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
-            responseData.phone // will be sent as 'contact'
+            responseData.phone,
+            responseData.processingTimeSeconds // pass processing time if available
           );
         }
 

@@ -20,6 +20,7 @@ interface LocationState {
   modernResumeUrl: string
   email?: string
   phone?: string
+  resumeId?: number
 }
 export const PreviewPage: React.FC = () => {
   const location = useLocation()
@@ -265,22 +266,12 @@ export const PreviewPage: React.FC = () => {
 
   // Handle successful payment
   const handlePaymentSuccess = async () => {
-    let resumeId;
     try {
-      // Get resume_id from /dashboard/resumes/failed
-      if (state?.email && state?.phone) {
-        const failedResp = await axios.post(
-          'https://admin.cvaluepro.com/dashboard/resumes/failed',
-          { email: state?.email, contact: state.phone },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-        resumeId = failedResp.data?.resume_id;
-      }
-      // Report resume success
-      if (resumeId) {
+      // Report resume success using resumeId from state
+      if (state?.resumeId) {
         await axios.post(
           'https://admin.cvaluepro.com/dashboard/resumes/successful',
-          { resume_id: resumeId },
+          { resume_id: state.resumeId },
           { headers: { 'Content-Type': 'application/json' } }
         );
       }
