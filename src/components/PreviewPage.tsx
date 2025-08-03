@@ -61,129 +61,7 @@ export const PreviewPage: React.FC = () => {
   //     };
   //   }
   // }, []);
-  // Screenshot and Screen Recording Protection
-  useEffect(() => {
-    // Add CSS to prevent screenshots and recordings
-    const style = document.createElement('style')
-    style.textContent = `
-      body {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-        -webkit-tap-highlight-color: transparent;
-      }
-      
-      * {
-        -webkit-user-select: none !important;
-        -moz-user-select: none !important;
-        -ms-user-select: none !important;
-        user-select: none !important;
-        pointer-events: auto !important;
-      }
-      
-      img, video, iframe {
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        pointer-events: none;
-      }
-      
-      @media print {
-        body { display: none !important; }
-      }
-    `
-    document.head.appendChild(style)
-    // Disable right-click context menu
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault()
-      return false
-    }
-    // Disable key combinations for screenshots and dev tools
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C, Ctrl+A, Ctrl+S, Ctrl+P
-      if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-        (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
-        (e.ctrlKey && (e.key === 'a' || e.key === 'A')) ||
-        (e.ctrlKey && (e.key === 's' || e.key === 'S')) ||
-        (e.ctrlKey && (e.key === 'p' || e.key === 'P')) ||
-        // Print Screen keys
-        e.key === 'PrintScreen' ||
-        // Windows + Shift + S (Snipping Tool)
-        (e.metaKey && e.shiftKey && e.key === 'S') ||
-        // Alt + PrintScreen
-        (e.altKey && e.key === 'PrintScreen')
-      ) {
-        e.preventDefault()
-        toast.error(String(language) === 'ar' ? 'هذا الإجراء غير مسموح' : 'This action is not allowed')
-        return false
-      }
-    }
-    // Disable drag and drop
-    const handleDragStart = (e: DragEvent) => {
-      e.preventDefault()
-      return false
-    }
-    // Disable text selection
-    const handleSelectStart = (e: Event) => {
-      e.preventDefault()
-      return false
-    }
-    // Add event listeners
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('dragstart', handleDragStart)
-    document.addEventListener('selectstart', handleSelectStart)
-    // Disable print
-    window.addEventListener('beforeprint', (e) => {
-      e.preventDefault()
-      toast.error(String(language) === 'ar' ? 'الطباعة غير مسموحة' : 'Printing is not allowed')
-      return false
-    })
-    // Blur page when window loses focus (prevents screen recording)
-    let blurTimeout: number
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        document.body.style.filter = 'blur(10px)'
-        document.body.style.userSelect = 'none'
-      } else {
-        // Add small delay to prevent flashing
-        blurTimeout = setTimeout(() => {
-          document.body.style.filter = 'none'
-        }, 100)
-      }
-    }
-    const handleBlur = () => {
-      document.body.style.filter = 'blur(10px)'
-    }
-    const handleFocus = () => {
-      clearTimeout(blurTimeout)
-      blurTimeout = setTimeout(() => {
-        document.body.style.filter = 'none'
-      }, 100)
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('blur', handleBlur)
-    window.addEventListener('focus', handleFocus)
-    // Cleanup function
-    return () => {
-      document.head.removeChild(style)
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('dragstart', handleDragStart)
-      document.removeEventListener('selectstart', handleSelectStart)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('blur', handleBlur)
-      window.removeEventListener('focus', handleFocus)
-      clearTimeout(blurTimeout)
-      document.body.style.filter = 'none'
-    }
-  }, [language])
+  // Screenshot and Screen Recording Protection REMOVED
   // Redirect to home if no state is available
   useEffect(() => {
     if (!state || !state.sessionId) {
@@ -559,7 +437,7 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center py-4 overflow-y-auto h-[calc(90vh-120px)]">
+                  <div className="flex flex-col gap-4 items-center justify-center  overflow-y-auto h-[65vh]">
                     {previewImages.classic.map((img, idx) => (
                       <div key={idx} className="relative w-full h-full">
                         <img
@@ -774,7 +652,7 @@ export const PreviewPage: React.FC = () => {
         </div>
       </main>
         {showPaymentForm && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center mt-10 justify-center z-50">
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center sm:mt-10 mt-0 justify-center z-50 ">
     <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
       <button
         onClick={() => setShowPaymentForm(false)}

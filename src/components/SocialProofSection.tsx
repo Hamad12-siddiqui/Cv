@@ -54,7 +54,7 @@ const SocialProofSection: React.FC<SocialProofSectionProps> = ({ content, isDark
       name: "سارة المحمود",
       position: "مديرة الموارد البشرية",
       company: "أرامكو",
-      testimonial: "جودة السير الذاتية التي نتلقاها من هذه المنصة استثنائية. التنسيق الواضح والهيكل المتوافق مع ATS يجعل عملية الفحص أكثر كفاءة.",
+      testimonial: "جودة السير الذاتية التي نتلقاها من هذه المنصة استثنائية. التنسيق الواضح والهيكل المتوافق مع ATS يجعل عملية الفحص أكثر كفاءة",
       imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
  
     },
@@ -62,7 +62,7 @@ const SocialProofSection: React.FC<SocialProofSectionProps> = ({ content, isDark
       name: "أحمد حسن",
       position: "مدير اكتساب المواهب",
       company: "شركة التقنية",
-      testimonial: "أخيراً وجدت خدمة تفهم السوق السعودي! الملفات الشخصية في لينكد إن التي يحسنونها تؤدي باستمرار بشكل أفضل في عمليات البحث لدينا.",
+      testimonial: "أخيراً وجدت خدمة تفهم السوق السعودي! الملفات الشخصية في لينكد إن التي يحسنونها تؤدي باستمرار بشكل أفضل في عمليات البحث لدينا",
       imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
    
     },
@@ -70,7 +70,7 @@ const SocialProofSection: React.FC<SocialProofSectionProps> = ({ content, isDark
       name: "فاطمة الزهراء",
       position: "مسؤولة التوظيف",
       company: "STC",
-      testimonial: "أنصح جميع الباحثين عن عمل بهذه المنصة. الاهتمام بالتفاصيل وفهم ما يبحث عنه أصحاب العمل أمر رائع.",
+      testimonial: "أنصح جميع الباحثين عن عمل بهذه المنصة. الاهتمام بالتفاصيل وفهم ما يبحث عنه أصحاب العمل أمر رائع",
       imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
   
     }

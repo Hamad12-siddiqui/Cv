@@ -319,13 +319,13 @@ const { isDarkMode, toggleDarkMode } = useTheme();
           {currentPreview === 'resume' && state?.resume && (
             <div className="space-y-6">
               <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                <h3 className="text-xl font-semibold mb-4">
+                <h3 className="text-3xl font-semibold mb-4">
                   {language === 'ar' ? 'معاينة السيرة الذاتية' : 'Resume Preview'}
                 </h3>
                 <div className="grid grid-cols-1 gap-8">
                   {/* Classic Resume Preview */}
                   <div>
-                    <h4 className="text-lg font-medium mb-4">
+                    <h4 className="text-2xl text-center font-medium mb-4">
                       {language === 'ar' ? 'النموذج الكلاسيكي' : 'Classic Template'}
                     </h4>
                     <div className="grid grid-cols-1 gap-4">
@@ -362,7 +362,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
 
                   {/* Modern Resume Preview */}
                   <div>
-                    <h4 className="text-lg font-medium mb-4">
+                    <h4 className="text-2xl text-center font-medium mb-4">
                       {language === 'ar' ? 'النموذج الحديث' : 'Modern Template'}
                     </h4>
                     <div className="grid grid-cols-1 gap-4">
