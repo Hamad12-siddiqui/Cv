@@ -20,6 +20,9 @@ interface UploadResponse {
   email?: string;
   phone?: string;
   processingTimeSeconds?: number;
+  // LinkedIn specific fields
+  tag_line?: string;
+  profile_summary?: string;
 }
 
 interface FormData {
@@ -187,12 +190,15 @@ export const OrderPage: React.FC = () => {
     return response.data;
   };
 
-  const generateLinkedIn = async (): Promise<any> => {
+  const generateLinkedIn = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/linkedin';
     
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
+
+    // Record start time
+    const startTime = Date.now();
 
     const response = await axios.post(`${API_BASE_URL}/generate-linkedin`, formDataToSend, {
       headers: {
@@ -208,6 +214,12 @@ export const OrderPage: React.FC = () => {
         }
       },
     });
+
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+    
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
 
     return response.data;
   };
@@ -417,7 +429,8 @@ export const OrderPage: React.FC = () => {
         if (linkedinResponse.email && linkedinResponse.phone) {
           resumeId = await reportFailedResume(
             linkedinResponse.email,
-            linkedinResponse.phone
+            linkedinResponse.phone,
+            linkedinResponse.processingTimeSeconds // pass processing time if available
           );
         }
 
