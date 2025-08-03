@@ -149,9 +149,12 @@ export const LinkedInPreview: React.FC = () => {
             </button>
             <button 
               onClick={handleDownload}
-              className='border px-3 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors'
+              className={`border px-3 py-2 rounded-lg bg-black text-white transition-colors ${hasPaid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'}`}
+              disabled={hasPaid}
             >
-                {language === 'ar' ? 'تحميل' : 'Copy Text'}
+                {hasPaid
+                  ? (language === 'ar' ? 'تم الدفع' : 'Paid')
+                  : (language === 'ar' ? 'تحميل' : 'Copy Text')}
             </button>
           </div>
           {/* Title */}
@@ -216,8 +219,8 @@ export const LinkedInPreview: React.FC = () => {
                 }}
               >
                 {!hasPaid && (
-                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg z-10 flex flex-col items-center justify-center text-white text-lg gap-2">
-                    <MdOutlineRemoveRedEye className="w-6 h-6" />
+                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg z-10 flex flex-col items-center justify-center text-white text-lg ">
+                    <MdOutlineRemoveRedEye className="w-5 h-5" />
                     {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
                   </span>
                 )}
@@ -258,8 +261,8 @@ export const LinkedInPreview: React.FC = () => {
                 }}
               >
                 {!hasPaid && (
-                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex flex-col z-10 items-center justify-center text-white text-lg gap-2">
-                    <MdOutlineRemoveRedEye className="w-6 h-6" />
+                  <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex flex-col z-10 items-center justify-center text-white text-lg ">
+                    <MdOutlineRemoveRedEye className="w-5 h-5" />
                     {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
                   </span>
                 )}

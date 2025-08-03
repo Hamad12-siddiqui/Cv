@@ -339,16 +339,16 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                               style={{ 
                                 maxHeight: '800px', 
                                 objectFit: 'contain',
-                                filter: !isPaid ? 'blur(0.8px)' : 'none'
+                                filter: !isPaid ? 'blur(0.7px)' : 'none'
                               }}
                               onContextMenu={(e) => !isPaid && e.preventDefault()}
                             />
                           </div>
-                          <div className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white px-2 py-1 text-sm">
+                          <div className="absolute bottom-0 right-0  bg-black bg-opacity-50  text-white px-2 py-1 text-sm">
                             {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                           </div>
                           {!isPaid && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center  bg-black bg-opacity-30">
                                 <MdOutlineRemoveRedEye size={36} className='text-white' />
                               <p className="text-white text-lg font-semibold">
                                 {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
@@ -376,16 +376,16 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                               style={{ 
                                 maxHeight: '800px', 
                                 objectFit: 'contain',
-                                filter: !isPaid ? 'blur(0.8px)' : 'none'
+                                filter: !isPaid ? 'blur(0.7px)' : 'none'
                               }}
                               onContextMenu={(e) => !isPaid && e.preventDefault()}
                             />
                           </div>
-                          <div className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white px-2 py-1 text-sm">
+                          <div className="absolute bottom-0 right-0 bg-black  bg-opacity-50 text-white px-2 py-1 text-sm">
                             {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                           </div>
                           {!isPaid && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black  bg-opacity-30 ">
                                 <MdOutlineRemoveRedEye size={36} className='text-white' />
                               <p className="text-white text-lg font-semibold">
                                 {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
@@ -445,7 +445,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                   <p>{state.linkedin.tagLine}</p>
                 </div>
                 {!isPaid && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black  bg-opacity-40 rounded-lg">
                     <MdOutlineRemoveRedEye size={36} className='text-white' />
                     <p className="text-white text-lg font-semibold">
                       {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
@@ -489,14 +489,14 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                 <div 
                   className={`relative ${!isPaid ? 'select-none' : ''}`}
                   style={{ 
-                    filter: !isPaid ? 'blur(0.8px)' : 'none',
+                    filter: !isPaid ? 'blur(0.7px)' : 'none',
                     userSelect: !isPaid ? 'none' : 'text'
                   }}
                 >
                   <p className="whitespace-pre-wrap">{state.linkedin.profileSummary}</p>
                 </div>
                 {!isPaid && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black  bg-opacity-40 rounded-lg">
                     <MdOutlineRemoveRedEye size={36} className='text-white' />
                     <p className="text-white text-lg font-semibold">
                       {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
@@ -524,7 +524,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                           style={{ 
                             maxHeight: '800px', 
                             objectFit: 'contain',
-                            filter: !isPaid ? 'blur(0.8px)' : 'none'
+                            filter: !isPaid ? 'blur(0.7px)' : 'none'
                           }}
                           onContextMenu={(e) => !isPaid && e.preventDefault()}
                         />
@@ -533,7 +533,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
                         {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
                       </div>
                       {!isPaid && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black  bg-opacity-40">
                             <MdOutlineRemoveRedEye  size={36} className='text-white' />
                           <p className="text-white text-lg font-semibold">
                             {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
@@ -552,7 +552,8 @@ const { isDarkMode, toggleDarkMode } = useTheme();
         <div className="flex justify-center mt-8">
           <button
             onClick={handleDownload}
-            className="px-6 py-3 bg-black text-white rounded-lg  transition-colors"
+            disabled={isPaid}
+            className={`px-6 py-3 rounded-lg transition-colors bg-black text-white ${isPaid ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {language === 'ar' ? 'تحميل الحزمة الكاملة' : 'Download Complete Bundle'}
           </button>
@@ -560,7 +561,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
 
         {/* Payment Form Modal */}
         {showPaymentForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 mt-10 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 mt-10 flex items-center justify-center z-50 ">
               <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <button
                   onClick={() => setShowPaymentForm(false)}

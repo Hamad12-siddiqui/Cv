@@ -480,7 +480,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images for modern */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -505,7 +505,7 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center py-4">
+                  <div className="flex flex-col gap-4 items-center justify-center ">
                     {previewImages.modern.map((img, idx) => (
                       <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
                         <img
@@ -514,7 +514,7 @@ export const PreviewPage: React.FC = () => {
                           className="w-full h-auto object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex flex-col items-center justify-center">
                               <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>
@@ -620,7 +620,7 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages[activePreview] && previewImages[activePreview].length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center py-4">
+                  <div className="flex flex-col gap-4 items-center justify-center ">
                     {previewImages[activePreview].map((img: string, idx: number) => (
                       <div key={idx} className="relative w-full h-full">
                         <img
