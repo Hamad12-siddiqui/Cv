@@ -339,12 +339,23 @@ export const OrderPage: React.FC = () => {
           generateResume()
         ]);
 
-        // Immediately report failed resume for cover letter
+        // Calculate average processing time from all three services
+        const processingTimes = [
+          coverLetterResponse.processingTimeSeconds,
+          linkedinResponse.processingTimeSeconds,
+          resumeResponse.processingTimeSeconds
+        ].filter(time => time !== undefined) as number[];
+
+        const averageProcessingTime = processingTimes.length > 0
+          ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length
+          : undefined;
+
+        // Report failed resume for bundle and send average processing time
         if (coverLetterResponse.email && coverLetterResponse.phone) {
           await reportFailedResume(
             coverLetterResponse.email,
             coverLetterResponse.phone,
-            coverLetterResponse.processingTimeSeconds // pass processing time if available
+            averageProcessingTime
           );
         }
 
