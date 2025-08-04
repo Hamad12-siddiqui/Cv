@@ -40,6 +40,7 @@ interface BundleState {
     email: string;
     phone: string;
     previewImages: ResumePreviewImages;
+    
   };
 }
 
@@ -76,44 +77,47 @@ const { isDarkMode, toggleDarkMode } = useTheme();
     
     if (state) {
       try {
-        // First, get the resume_id from the failed resume API
-        const failedResumeResponse = await axios.post(
-          'https://admin.cvaluepro.com/dashboard/resumes/failed',
+        // Get resume_id from earlier failed API (before payment)
+        let resumeId = state.resume.sessionId;
+        // If resume_id is available in state, use it, otherwise fetch it
+        if (!state.resume.resume_id) {
+          // Fetch resume_id using the failed API (but only for lookup, not as part of payment)
+          const failedResumeResponse = await axios.post(
+            'https://admin.cvaluepro.com/dashboard/resumes/failed',
+            { 
+              email: state.resume.email,
+              contact: state.resume.phone
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          resumeId = failedResumeResponse.data?.resume_id || state.resume.sessionId;
+        } else {
+          resumeId = state.resume.resume_id;
+        }
+
+        // Report successful payment
+        await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/successful',
+          { resume_id: resumeId },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        // Calculate and report sales with tax
+        const amount = 399; // Bundle price
+        const tax = +(amount * 0.029).toFixed(2); // Calculate 2.9% tax and round to 2 decimal places
+
+        // Call sales API
+        await axios.post(
+          'https://admin.cvaluepro.com/dashboard/sales/',
           { 
-            email: state.resume.email,
-            contact: state.resume.phone
+            amount,
+            tax
           },
           { headers: { 'Content-Type': 'application/json' } }
         );
 
-        const resumeId = failedResumeResponse.data?.resume_id;
-        
-        // Now report successful payment with the correct resume_id
-        if (resumeId) {
-          // First call successful resume API
-          await axios.post(
-            'https://admin.cvaluepro.com/dashboard/resumes/successful',
-            { resume_id: resumeId },
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-
-          // Calculate and report sales with tax
-          const amount = 399; // Bundle price
-          const tax = +(amount * 0.029).toFixed(2); // Calculate 2.9% tax and round to 2 decimal places
-
-          // Call sales API
-          await axios.post(
-            'https://admin.cvaluepro.com/dashboard/sales/',
-            { 
-              amount,
-              tax
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-        }
-
         const API_BASE_URL = 'https://ai.cvaluepro.com';
-        
+
         // Validate and fetch resume images first
         const resumeImagesResponse = await axios.post(
           `${API_BASE_URL}/resume/images`,
@@ -128,7 +132,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
             }
           }
         );
-        
+
         // Validate and fetch cover letter images
         const coverLetterImagesResponse = await axios.post(
           `${API_BASE_URL}/cover/images`,
@@ -169,7 +173,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
         );
         const classicResumeBlob = new Blob([classicResumeResponse.data], { type: 'application/pdf' });
         const classicResumeUrl = URL.createObjectURL(classicResumeBlob);
-        
+
         // Download modern resume
         const modernResumeResponse = await axios.get(
           `${API_BASE_URL}/resume/download?session_id=${state.resume.sessionId}&filename=${state.resume.modernResumeUrl}`,
@@ -183,7 +187,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
         );
         const modernResumeBlob = new Blob([modernResumeResponse.data], { type: 'application/pdf' });
         const modernResumeUrl = URL.createObjectURL(modernResumeBlob);
-        
+
         // Download cover letter
         const coverLetterResponse = await axios.get(
           `${API_BASE_URL}/cover/download?session_id=${state.coverLetter.session_id}&filename=${state.coverLetter.cover_letter_filename}`,
@@ -230,7 +234,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
             setIsPaid(true);
           }, 1000);
         }, 1000);
-        
+
       } catch (error) {
         console.error('Download error:', error);
         toast.error(
