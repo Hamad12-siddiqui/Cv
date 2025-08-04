@@ -20,7 +20,7 @@ interface LocationState {
   modernResumeUrl: string
   email?: string
   phone?: string
-  resumeId?: number
+  resume_id?: number
 }
 export const PreviewPage: React.FC = () => {
   const location = useLocation()
@@ -71,49 +71,6 @@ export const PreviewPage: React.FC = () => {
     }
   }, [state, navigate, language])
   useEffect(() => {
-    const downloadResumes = async () => {
-      try {
-        const API_BASE_URL = "https://ai.cvaluepro.com/resume"
-        // Download Classic Resume
-        const classicResponse = await axios.get(
-          `${API_BASE_URL}/download?session_id=${state.sessionId}&filename=${state.classicResumeUrl}`,
-          {
-            responseType: "blob",
-            headers: {
-              "ngrok-skip-browser-warning": "true",
-              Accept: "application/pdf",
-            },
-          },
-        )
-        const classicBlob = new Blob([classicResponse.data], { type: "application/pdf" })
-        const classicUrl = URL.createObjectURL(classicBlob)
-        // Add parameters to hide PDF controls but allow scrolling
-        setClassicPdfUrl(`${classicUrl}#toolbar=0&navpanes=0&view=FitH`)
-        // Download Modern Resume
-        const modernResponse = await axios.get(
-          `${API_BASE_URL}/download?session_id=${state.sessionId}&filename=${state.modernResumeUrl}`,
-          {
-            responseType: "blob",
-            headers: {
-              "ngrok-skip-browser-warning": "true",
-              Accept: "application/pdf",
-            },
-          },
-        )
-        const modernBlob = new Blob([modernResponse.data], { type: "application/pdf" })
-        const modernUrl = URL.createObjectURL(modernBlob)
-        // Add parameters to hide PDF controls but allow scrolling
-        setModernPdfUrl(`${modernUrl}#toolbar=0&navpanes=0&view=FitH`)
-        // setIsLoading(false) removed (no longer used)
-      } catch (error) {
-        console.error("Error downloading resumes:", error)
-        toast.error(String(language) === "ar" ? "حدث خطأ في تحميل السير الذاتية" : "Error loading resumes")
-        // setIsLoading(false) removed (no longer used)
-      }
-    }
-    if (state?.sessionId) {
-      downloadResumes()
-    }
     // Cleanup function to revoke object URLs
     return () => {
       if (classicPdfUrl) URL.revokeObjectURL(classicPdfUrl.split("#")[0])
@@ -267,14 +224,6 @@ export const PreviewPage: React.FC = () => {
   // Handle successful payment
   const handlePaymentSuccess = async () => {
     try {
-      // Report resume success using resumeId from state
-      if (state?.resumeId) {
-        await axios.post(
-          'https://admin.cvaluepro.com/dashboard/resumes/successful',
-          { resume_id: state.resumeId },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-      }
       // Report sale with tax
       const amount = 299; // Use the amount from /create-charge or PaymentForm
       const tax = +(amount * 0.029).toFixed(2);
@@ -283,24 +232,68 @@ export const PreviewPage: React.FC = () => {
         { amount, tax },
         { headers: { 'Content-Type': 'application/json' } }
       );
+
+      // Call /dashboard/resumes/successful if resume_id is present in state
+      if (typeof state?.resume_id === 'number' && state.resume_id > 0) {
+        await axios.post(
+          'https://admin.cvaluepro.com/dashboard/resumes/successful',
+          { resume_id: state.resume_id },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // ...existing code...
+
+      // Download the PDF only after payment
+      const API_BASE_URL = "https://ai.cvaluepro.com/resume";
+      let pdfUrl = "";
+      if (selectedResumeType === 'classic') {
+        const classicResponse = await axios.get(
+          `${API_BASE_URL}/download?session_id=${state.sessionId}&filename=${state.classicResumeUrl}`,
+          {
+            responseType: "blob",
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+              Accept: "application/pdf",
+            },
+          },
+        );
+        const classicBlob = new Blob([classicResponse.data], { type: "application/pdf" });
+        pdfUrl = URL.createObjectURL(classicBlob) + "#toolbar=0&navpanes=0&view=FitH";
+        setClassicPdfUrl(pdfUrl);
+      } else {
+        const modernResponse = await axios.get(
+          `${API_BASE_URL}/download?session_id=${state.sessionId}&filename=${state.modernResumeUrl}`,
+          {
+            responseType: "blob",
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+              Accept: "application/pdf",
+            },
+          },
+        );
+        const modernBlob = new Blob([modernResponse.data], { type: "application/pdf" });
+        pdfUrl = URL.createObjectURL(modernBlob) + "#toolbar=0&navpanes=0&view=FitH";
+        setModernPdfUrl(pdfUrl);
+      }
+
+      // Download the PDF
+      const filename = `${selectedResumeType}-resume.pdf`;
+      downloadPdf(pdfUrl, filename);
+
+      // Show success message
+      toast.success(String(language) === 'ar' ? 'تم تحميل السيرة الذاتية بنجاح' : 'Resume downloaded successfully');
+
+      // Redirect to home page
+      navigate('/', { replace: true });
     } catch (err) {
       // Optionally log/report error, but continue
       console.error('Resume/sale reporting error:', err);
+      toast.error(String(language) === 'ar' ? 'حدث خطأ أثناء تحميل السيرة الذاتية' : 'Error downloading resume');
     }
 
     // Close payment form
     setShowPaymentForm(false);
-
-    // Download the PDF
-    const url = selectedResumeType === 'classic' ? classicPdfUrl : modernPdfUrl;
-    const filename = `${selectedResumeType}-resume.pdf`;
-    downloadPdf(url, filename);
-    
-    // Show success message
-    toast.success(String(language) === 'ar' ? 'تم تحميل السيرة الذاتية بنجاح' : 'Resume downloaded successfully');
-    
-    // Redirect to home page
-    navigate('/', { replace: true });
   };
   
   const handleBackClick = () => {
@@ -343,7 +336,7 @@ export const PreviewPage: React.FC = () => {
       )}
       <main className="container mx-auto px-4 py-12">
         {/* Back Button */}
-        <div className="mt-10">
+        <div className="mt-10 ">
           <button
             onClick={handleBackClick}
             className={`group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
@@ -480,7 +473,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images for modern */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -505,7 +498,7 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center ">
+                  <div className="flex flex-col gap-4 items-center justify-center py-4">
                     {previewImages.modern.map((img, idx) => (
                       <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
                         <img
@@ -514,7 +507,7 @@ export const PreviewPage: React.FC = () => {
                           className="w-full h-auto object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex flex-col items-center justify-center">
+                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
                               <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>
@@ -620,7 +613,7 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages[activePreview] && previewImages[activePreview].length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center ">
+                  <div className="flex flex-col gap-4 items-center justify-center py-4">
                     {previewImages[activePreview].map((img: string, idx: number) => (
                       <div key={idx} className="relative w-full h-full">
                         <img

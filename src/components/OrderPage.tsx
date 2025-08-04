@@ -558,7 +558,7 @@ export const OrderPage: React.FC = () => {
       <main className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-4xl">
           {/* Back Button */}
-          <div className="mb-8">
+          <div className="mb-8 ">
             <button
               onClick={handleBack}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
