@@ -59,7 +59,7 @@ const DatabaseSection: React.FC<DatabaseSectionProps> = ({ content, isDarkMode, 
 
           <p className={`mt-12 text-lg max-w-3xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {language === 'ar' 
-              ? 'يصبح ملفك الشخصي المحسن جزءًا من مجموعة مواهب منتقاة يبحث فيها المسؤولون عن التوظيف بنشاط لتلبية احتياجاتهم التوظيفية. هذا يمنحك رؤية مستمرة تتجاوز شراء الخدمة الأولي.'
+              ? 'يصبح ملفك الشخصي المحسن جزءًا من مجموعة مواهب منتقاة يبحث فيها المسؤولون عن التوظيف بنشاط لتلبية احتياجاتهم التوظيفية هذا يمنحك رؤية مستمرة تتجاوز شراء الخدمة الأولي'
               : 'Your enhanced profile becomes part of a curated talent pool that recruiters actively search through for their hiring needs. This gives you ongoing visibility beyond your initial service purchase.'
             }
           </p>
