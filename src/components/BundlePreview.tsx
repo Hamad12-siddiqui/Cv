@@ -565,7 +565,7 @@ const { isDarkMode, toggleDarkMode } = useTheme();
 
         {/* Payment Form Modal */}
         {showPaymentForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 mt-10 flex items-center justify-center z-50 ">
+            <div className="fixed inset-0 bg-black bg-opacity-50  flex items-center justify-center z-50 ">
               <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <button
                   onClick={() => setShowPaymentForm(false)}

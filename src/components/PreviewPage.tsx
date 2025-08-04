@@ -325,8 +325,8 @@ export const PreviewPage: React.FC = () => {
       />
       {/* Mobile Screenshot/Recording Overlay */}
       {isMobile && showMobileOverlay && (
-        <div className="fixed inset-0 z-[40] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-lg">
-          <div className="text-center text-white p-8 rounded-2xl bg-black bg-opacity-70 border-2 border-red-600 shadow-2xl">
+        <div className="fixed inset-0 z-[40] flex items-center justify-center  bg-black bg-opacity-80 backdrop-blur-lg">
+          <div className="text-center text-white p-8 rounded-2xl bg-black bg-opacity-70 border-red-600 shadow-2xl">
             <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             <h2 className="text-2xl font-bold mb-2">{String(language) === 'ar' ? 'تم تعطيل المعاينة مؤقتًا' : 'Preview Disabled'}</h2>
             <p className="text-lg mb-2">{String(language) === 'ar' ? 'لا يمكن التقاط لقطة شاشة أو تسجيل الشاشة لهذا المحتوى.' : 'Screenshot and screen recording are not allowed for this content.'}</p>
@@ -381,7 +381,7 @@ export const PreviewPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleDownload('classic')}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg  transition-all duration-200 transform hover:scale-105 active:scale-95 ${
                     isDarkMode ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"
                   }`}
                 >
@@ -396,7 +396,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images for classic */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -421,19 +421,22 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center  overflow-y-auto h-[65vh]">
+                  <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh]">
                     {previewImages.classic.map((img, idx) => (
-                      <div key={idx} className="relative w-full h-full">
+                      <div key={idx} className="relative w-full h-full break-after-page">
                         <img
                           src={img}
-                          alt="Resume Preview"
+                          alt={`Resume Preview Page ${idx + 1}`}
                           className="w-full h-full object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-
-                        <div className="absolute inset-0 bg-black opacity-50 z-40 rounded flex flex-col items-center justify-center w-full h-full">
-                              <MdOutlineRemoveRedEye className="text-white " size={36} />
+                        <div className="absolute inset-0 bg-black opacity-50  z-40 rounded flex flex-col items-center justify-center w-full h-full">
+                          <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
+                        </div>
+                        {/* Page Number Overlay */}
+                        <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
+                          {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
                         </div>
                       </div>
                     ))}
@@ -473,7 +476,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images for modern */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -498,18 +501,22 @@ export const PreviewPage: React.FC = () => {
                     </button>
                   </div>
                 ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
-                  <div className="flex flex-col gap-4 items-center justify-center py-4">
+                  <div className="flex flex-col gap-8 items-center justify-center ">
                     {previewImages.modern.map((img, idx) => (
-                      <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+                      <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
                         <img
                           src={img}
-                          alt="Resume Preview"
+                          alt={`Resume Preview Page ${idx + 1}`}
                           className="w-full h-auto object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex items-center justify-center">
-                              <MdOutlineRemoveRedEye className="text-white " size={36} />
+                        <div className="absolute inset-0 bg-black opacity-50  rounded flex items-center justify-center">
+                          <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
+                        </div>
+                        {/* Page Number Overlay */}
+                        <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
+                          {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
                         </div>
                       </div>
                     ))}
@@ -588,7 +595,7 @@ export const PreviewPage: React.FC = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <div className={`w-full min-h-[30vh] rounded-xl overflow-hidden border-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div className={`w-full min-h-[30vh] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 {/* Show loading, error, or images */}
                 {previewImageLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px]">
@@ -622,7 +629,7 @@ export const PreviewPage: React.FC = () => {
                           className="w-full h-full object-contain rounded cursor-zoom-in"
                           onClick={() => setFullScreenImg(img)}
                         />
-                        <div className="absolute inset-0 bg-black opacity-50 rounded flex flex-col items-center justify-center w-full h-full">
+                        <div className="absolute inset-0  bg-black opacity-50 rounded flex flex-col items-center justify-center w-full h-full">
                              <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>
@@ -636,7 +643,7 @@ export const PreviewPage: React.FC = () => {
         </div>
       </main>
         {showPaymentForm && (
-  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center sm:mt-10 mt-0 justify-center z-50 ">
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center mt-0 justify-center z-50 ">
     <div className={`relative w-full max-w-md p-6 rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
       <button
         onClick={() => setShowPaymentForm(false)}

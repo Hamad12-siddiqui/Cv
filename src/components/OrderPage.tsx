@@ -333,13 +333,9 @@ export const OrderPage: React.FC = () => {
 
     setIsUploading(true);
     setUploadProgress(0);
-
-    // Start timing
-    const startTime = Date.now();
-
+    
     try {
       let responseData: UploadResponse;
-      let resumeId: number | undefined;
 
       if (serviceType === 'bundle') {
         // Call all generation APIs in parallel
@@ -362,24 +358,11 @@ export const OrderPage: React.FC = () => {
 
         // Report failed resume for bundle and send average processing time
         if (coverLetterResponse.email && coverLetterResponse.phone) {
-          resumeId = await reportFailedResume(
+          await reportFailedResume(
             coverLetterResponse.email,
             coverLetterResponse.phone,
             averageProcessingTime
           );
-          // Calculate processing time and report
-          if (typeof resumeId === 'number' && resumeId > 0) {
-            const endTime = Date.now();
-            const processingTimeSeconds = Math.floor((endTime - startTime) / 1000);
-            await axios.post(
-              'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
-              {
-                resume_id: resumeId,
-                processing_time_seconds: processingTimeSeconds
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-          }
         }
 
         // Fetch preview images for cover letter and resume
@@ -435,27 +418,15 @@ export const OrderPage: React.FC = () => {
         });
       } else if (serviceType === 'cover-letter') {
         responseData = await generateCoverLetter();
-
+        
         // Immediately report failed resume for cover letter
+        let resumeId;
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
             responseData.phone,
             responseData.processingTimeSeconds // pass processing time if available
           );
-          // Calculate processing time and report
-          if (typeof resumeId === 'number' && resumeId > 0) {
-            const endTime = Date.now();
-            const processingTimeSeconds = Math.floor((endTime - startTime) / 1000);
-            await axios.post(
-              'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
-              {
-                resume_id: resumeId,
-                processing_time_seconds: processingTimeSeconds
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-          }
         }
 
         navigate('/cover-letter-preview', {
@@ -471,25 +442,13 @@ export const OrderPage: React.FC = () => {
         const linkedinResponse = await generateLinkedIn();
 
         // Immediately report failed resume for LinkedIn
+        let resumeId;
         if (linkedinResponse.email && linkedinResponse.phone) {
           resumeId = await reportFailedResume(
             linkedinResponse.email,
             linkedinResponse.phone,
             linkedinResponse.processingTimeSeconds // pass processing time if available
           );
-          // Calculate processing time and report
-          if (typeof resumeId === 'number' && resumeId > 0) {
-            const endTime = Date.now();
-            const processingTimeSeconds = Math.floor((endTime - startTime) / 1000);
-            await axios.post(
-              'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
-              {
-                resume_id: resumeId,
-                processing_time_seconds: processingTimeSeconds
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-          }
         }
 
         navigate('/linkedin-preview', {
@@ -503,27 +462,15 @@ export const OrderPage: React.FC = () => {
         });
       } else {
         responseData = await generateResume();
-
+        
         // Immediately report failed resume for CV enhancement
+        let resumeId;
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
             responseData.phone,
             responseData.processingTimeSeconds // pass processing time if available
           );
-          // Calculate processing time and report
-          if (typeof resumeId === 'number' && resumeId > 0) {
-            const endTime = Date.now();
-            const processingTimeSeconds = Math.floor((endTime - startTime) / 1000);
-            await axios.post(
-              'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
-              {
-                resume_id: resumeId,
-                processing_time_seconds: processingTimeSeconds
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-          }
         }
 
         navigate('/preview', {
@@ -544,9 +491,9 @@ export const OrderPage: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Upload error:', error);
-
-      let errorMessage = language === 'ar'
-        ? 'فشل في الرفع. يرجى المحاولة مرة أخرى.'
+      
+      let errorMessage = language === 'ar' 
+        ? 'فشل في الرفع. يرجى المحاولة مرة أخرى.' 
         : 'Upload failed. Please try again.';
 
       if (axios.isAxiosError(error)) {
