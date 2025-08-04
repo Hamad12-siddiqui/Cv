@@ -19,6 +19,10 @@ interface UploadResponse {
   cover_letter_filename?: string;
   email?: string;
   phone?: string;
+  processingTimeSeconds?: number;
+  // LinkedIn specific fields
+  tag_line?: string;
+  profile_summary?: string;
 }
 
 interface FormData {
@@ -157,6 +161,9 @@ export const OrderPage: React.FC = () => {
     console.log('Job Title:', formData.jobTitle);
     console.log('Job Description length:', formData.jobDescription.length);
 
+    // Record start time
+    const startTime = Date.now();
+
     const response = await axios.post(`${API_BASE_URL}/generate-cover-letter`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
@@ -174,15 +181,24 @@ export const OrderPage: React.FC = () => {
     
     console.log('Cover letter generation response:', response.data);
 
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+    
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
+
     return response.data;
   };
 
-  const generateLinkedIn = async (): Promise<any> => {
+  const generateLinkedIn = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/linkedin';
     
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
+
+    // Record start time
+    const startTime = Date.now();
 
     const response = await axios.post(`${API_BASE_URL}/generate-linkedin`, formDataToSend, {
       headers: {
@@ -198,6 +214,12 @@ export const OrderPage: React.FC = () => {
         }
       },
     });
+
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+    
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
 
     return response.data;
   };
@@ -218,6 +240,9 @@ export const OrderPage: React.FC = () => {
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
 
+    // Record start time
+    const startTime = Date.now();
+
     const response = await axios.post(`${API_BASE_URL}/upload-resume`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
@@ -233,10 +258,16 @@ export const OrderPage: React.FC = () => {
       },
     });
 
+    // Calculate processing time in seconds
+    const processingTimeSeconds = (Date.now() - startTime) / 1000;
+
+    // Store processing time to be used after getting resume_id
+    response.data.processingTimeSeconds = processingTimeSeconds;
+
     return response.data;
   };
 
-  const reportFailedResume = async (email: string, phone: string) => {
+  const reportFailedResume = async (email: string, phone: string, processingTimeSeconds?: number) => {
     const payload = {
       email,
       contact: phone // only send 'contact', not 'phone'
@@ -248,6 +279,23 @@ export const OrderPage: React.FC = () => {
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );
+      
+      // If we have both resume_id and processing time, report it
+      if (resp.data?.resume_id && processingTimeSeconds !== undefined) {
+        try {
+          await axios.post(
+            'https://admin.cvaluepro.com/dashboard/resumes/processing-time',
+            {
+              resume_id: resp.data.resume_id,
+              processing_time_seconds: Math.round(processingTimeSeconds)
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Failed to record processing time:', error);
+        }
+      }
+      
       // Return resume_id if present
       return resp.data?.resume_id;
     } catch (err: any) {
@@ -295,11 +343,23 @@ export const OrderPage: React.FC = () => {
           generateResume()
         ]);
 
-        // Immediately report failed resume for cover letter
+        // Calculate average processing time from all three services
+        const processingTimes = [
+          coverLetterResponse.processingTimeSeconds,
+          linkedinResponse.processingTimeSeconds,
+          resumeResponse.processingTimeSeconds
+        ].filter(time => time !== undefined) as number[];
+
+        const averageProcessingTime = processingTimes.length > 0
+          ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length
+          : undefined;
+
+        // Report failed resume for bundle and send average processing time
         if (coverLetterResponse.email && coverLetterResponse.phone) {
           resumeId = await reportFailedResume(
             coverLetterResponse.email,
-            coverLetterResponse.phone
+            coverLetterResponse.phone,
+            averageProcessingTime
           );
           // Calculate processing time and report
           if (typeof resumeId === 'number' && resumeId > 0) {
@@ -374,7 +434,8 @@ export const OrderPage: React.FC = () => {
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
-            responseData.phone
+            responseData.phone,
+            responseData.processingTimeSeconds // pass processing time if available
           );
           // Calculate processing time and report
           if (typeof resumeId === 'number' && resumeId > 0) {
@@ -407,7 +468,8 @@ export const OrderPage: React.FC = () => {
         if (linkedinResponse.email && linkedinResponse.phone) {
           resumeId = await reportFailedResume(
             linkedinResponse.email,
-            linkedinResponse.phone
+            linkedinResponse.phone,
+            linkedinResponse.processingTimeSeconds // pass processing time if available
           );
           // Calculate processing time and report
           if (typeof resumeId === 'number' && resumeId > 0) {
@@ -440,7 +502,8 @@ export const OrderPage: React.FC = () => {
         if (responseData.email && responseData.phone) {
           resumeId = await reportFailedResume(
             responseData.email,
-            responseData.phone // will be sent as 'contact'
+            responseData.phone,
+            responseData.processingTimeSeconds // pass processing time if available
           );
           // Calculate processing time and report
           if (typeof resumeId === 'number' && resumeId > 0) {
