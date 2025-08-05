@@ -12,7 +12,7 @@ interface PaymentFormProps {
   backButtonText?: string;
   continueButtonText?: string;
 }
-
+// This interface defines the structure of the form data
 interface FormData {
   number: string;
   exp_month: string;
