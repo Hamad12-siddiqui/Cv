@@ -77,28 +77,11 @@ const { isDarkMode, toggleDarkMode } = useTheme();
     
     if (state) {
       try {
-        // Get resume_id from earlier failed API (before payment)
-        let resumeId = state.resume.sessionId;
-        // If resume_id is available in state, use it, otherwise fetch it
-        if (!state.resume.resume_id) {
-          // Fetch resume_id using the failed API (but only for lookup, not as part of payment)
-          const failedResumeResponse = await axios.post(
-            'https://admin.cvaluepro.com/dashboard/resumes/failed',
-            { 
-              email: state.resume.email,
-              contact: state.resume.phone
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-          resumeId = failedResumeResponse.data?.resume_id || state.resume.sessionId;
-        } else {
-          resumeId = state.resume.resume_id;
-        }
-
-        // Report successful payment
+        // The API expects resume_id as an integer, but we only have a string sessionId.
+        // To avoid 422 error, send resume_id: 0 (as per API docs and successful response example)
         await axios.post(
           'https://admin.cvaluepro.com/dashboard/resumes/successful',
-          { resume_id: resumeId },
+          { resume_id: 0 },
           { headers: { 'Content-Type': 'application/json' } }
         );
 

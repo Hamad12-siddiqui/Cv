@@ -284,6 +284,21 @@ export const PreviewPage: React.FC = () => {
       // Show success message
       toast.success(String(language) === 'ar' ? 'تم تحميل السيرة الذاتية بنجاح' : 'Resume downloaded successfully');
 
+      // Call delete-session API after payment and before redirect
+      try {
+        await axios.delete(
+          `https://ai.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
+          {
+            headers: {
+              'accept': 'application/json',
+            },
+          }
+        );
+      } catch (deleteErr) {
+        // Optionally log/report error, but don't block navigation
+        console.error('Session delete error:', deleteErr);
+      }
+
       // Redirect to home page
       navigate('/', { replace: true });
     } catch (err) {
@@ -297,7 +312,24 @@ export const PreviewPage: React.FC = () => {
   };
   
   const handleBackClick = () => {
-    navigate("/", { replace: true })
+    // Call delete-session API before navigating home
+    if (state && state.sessionId) {
+      axios.delete(
+        `https://ai.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
+        {
+          headers: {
+            'accept': 'application/json',
+          },
+        }
+      ).catch((err) => {
+        // Optionally log/report error, but don't block navigation
+        console.error('Session delete error:', err);
+      }).finally(() => {
+        navigate("/", { replace: true });
+      });
+    } else {
+      navigate("/", { replace: true });
+    }
   }
   // Determine font family class based on language
   const fontFamilyClass = String(language) === "ar" ? "font-riwaya" : "font-hagrid"

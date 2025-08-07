@@ -235,11 +235,35 @@ export function CoverLetterPreview() {
     link.click();
     document.body.removeChild(link);
     toast.success(language === 'ar' ? 'تم تحميل الملف بنجاح' : 'File downloaded successfully');
+    // Call delete-session API after payment success
+    if (state?.session_id) {
+      axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
+        headers: {
+          'accept': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }).catch((err) => {
+        // Optionally log error, but don't block navigation
+        console.error('Failed to delete session:', err);
+      });
+    }
     setTimeout(() => {
       navigate('/', { replace: true });
     }, 2000);
   };
   const handleBackClick = () => {
+    // Call delete-session API before navigating back
+    if (state?.session_id) {
+      axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
+        headers: {
+          'accept': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }).catch((err) => {
+        // Optionally log error, but don't block navigation
+        console.error('Failed to delete session:', err);
+      });
+    }
     navigate('/', { replace: true });
   };
   const handleRetry = () => {
@@ -468,7 +492,7 @@ export function CoverLetterPreview() {
           </div>
         )}
       </main>
-      <Footer isDarkMode={isDarkMode} language={typeof language === 'string' ? language : 'ar'} />
+      <Footer isDarkMode={isDarkMode} language={language} />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { Content } from '../types';
 export const content: Record<'en' | 'ar', Content> = {
   ar: {
     hero: {
-      title: "اجعل نفسك ملاحظاً. احصل على وظيفة",
+      title: "فرصتك تبدأ من طريقة تقديمك لنفسك.",
       subtitle: "عزز سيرتك الذاتية، ارفع مستوى لينكد إن، واكتب خطاب التغطية المثالي",
       keywords: ["مهنة", "محترف", "سيرة ذاتية", "تطوير", "موهبة", "شخصي", "لينكد إن", "محترف", "مميز", "عرض", "متوافق مع ATS", "نمو"]
     },
@@ -23,14 +23,16 @@ export const content: Record<'en' | 'ar', Content> = {
           price: "199 ريال"
         },
         {
-          title: "إنشاء خطاب التغطية",
+          // title: "إنشاء خطاب التغطية",
+           title: "Cover Letter إنشاء",
           description: "اكتب خطابات تغطية مقنعة تجذب انتباه أصحاب العمل",
           price: "149 ريال"
         }
       ]
     },
     offer: {
-      title: "عرض الحزمة الخاصة",
+      // title: "عرض الحزمة الخاصة",
+      title: "تألّق مهنياً",
       description: "تحسين السيرة الذاتية + تحسين لينكد إن",
       originalPrice: "498 ريال",
       discountedPrice: "399 ريال",

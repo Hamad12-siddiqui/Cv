@@ -108,12 +108,12 @@ const SocialProofSection: React.FC<SocialProofSectionProps> = ({ content, isDark
           <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             {content.title}
           </h2>
-          <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          {/* <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             {language === 'ar' 
               ? 'موثوق من قبل كبرى الشركات والمهنيين في جميع أنحاء المملكة العربية السعودية'
               : 'Trusted by top companies and professionals across Saudi Arabia'
             }
-          </p>
+          </p> */}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-8">
           {testimonials.map((testimonial, index) => (
