@@ -4,7 +4,7 @@ import { Content } from '../types';
 export const content: Record<'en' | 'ar', Content> = {
   ar: {
     hero: {
-      title: "فرصتك تبدأ من طريقة تقديمك لنفسك.",
+      title: "فرصتك تبدأ من طريقة تقديمك لنفسك",
       subtitle: "عزز سيرتك الذاتية، ارفع مستوى لينكد إن، واكتب خطاب التغطية المثالي",
       keywords: ["مهنة", "محترف", "سيرة ذاتية", "تطوير", "موهبة", "شخصي", "لينكد إن", "محترف", "مميز", "عرض", "متوافق مع ATS", "نمو"]
     },
@@ -228,8 +228,10 @@ export const content: Record<'en' | 'ar', Content> = {
         description: "Upload your LinkedIn profile details or screenshots and we'll optimize your professional presence. We'll enhance your headline, summary, experience descriptions, and skills to maximize your visibility to recruiters and hiring managers."
       },
       coverLetter: {
-        title: "Cover Letter Creation Order",
-        description: "Upload your CV and job description (if available) and we'll craft a compelling cover letter that captures employers' attention. Our AI-powered service creates personalized cover letters that highlight your strengths and match job requirements."
+        // title: "Cover Letter Creation Order",
+        title: "What is Cover letter? ",
+        description: " A cover letter is sent with your application to introduce yourself and explain why you're a great fit for the job. It should be tailored to the company and position, not generic. A strong, personalized cover letter can boost your chances of getting hired by 30% to 50%.",
+        // description: "Upload your CV and job description (if available) and we'll craft a compelling cover letter that captures employers' attention. Our AI-powered service creates personalized cover letters that highlight your strengths and match job requirements."
       },
       bundle: {
         title: "Bundle Offer Order - CV + LinkedIn",
