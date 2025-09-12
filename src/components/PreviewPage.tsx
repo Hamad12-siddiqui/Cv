@@ -42,6 +42,14 @@ export const PreviewPage: React.FC = () => {
   const [fullScreenImg, setFullScreenImg] = useState<string | null>(null)
 
   useEffect(() => {
+    // Debug log to check incoming state
+    console.log('PreviewPage state:', {
+      sessionId: state?.sessionId,
+      classicUrl: state?.classicResumeUrl,
+      modernUrl: state?.modernResumeUrl,
+      dummyModernUrl: state?.dummyModernResumeUrl
+    });
+
     if (!state || !state.sessionId) {
       toast.error(String(language) === "ar" ? "لم يتم العثور على معلومات السيرة الذاتية" : "Resume information not found")
       navigate("/")
@@ -92,7 +100,7 @@ export const PreviewPage: React.FC = () => {
 
     const fetchImages = async () => {
       try {
-        
+
         const API_BASE_URL = "https://resume.cvaluepro.com/resume/images";
         const authToken = await getAuthToken();
 

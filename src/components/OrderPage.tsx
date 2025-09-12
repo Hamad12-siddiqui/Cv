@@ -15,6 +15,7 @@ interface UploadResponse {
   session_id: string;
   classic_resume_url?: string;
   modern_resume_url?: string;
+  dummy_modern_resume_url?: string; // Add dummy modern resume URL field
   file_name?: string;
   cover_letter_filename?: string;
   email?: string;
@@ -252,6 +253,9 @@ export const OrderPage: React.FC = () => {
   const generateResume = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://resume.cvaluepro.com/resume';
 
+    // Debug log for resume generation
+    console.log('Starting resume generation...');
+
     // Get authentication token
     const authToken = await getAuthToken();
 
@@ -277,6 +281,14 @@ export const OrderPage: React.FC = () => {
           setUploadProgress(progress);
         }
       },
+    });
+
+    // Debug log API response
+    console.log('Resume generation response:', {
+      sessionId: response.data.session_id,
+      classicUrl: response.data.classic_resume_url,
+      modernUrl: response.data.modern_resume_url,
+      dummyModernUrl: response.data.dummy_modern_resume_url // Check if this exists in response
     });
 
     // Calculate processing time in seconds
@@ -493,9 +505,10 @@ export const OrderPage: React.FC = () => {
             sessionId: responseData.session_id,
             classicResumeUrl: responseData.classic_resume_url,
             modernResumeUrl: responseData.modern_resume_url,
+            dummyModernResumeUrl: responseData.dummy_modern_resume_url, // Add dummy modern resume URL
             email: responseData.email,
             phone: responseData.phone,
-            resume_id: resumeId // optionally pass resume_id if needed
+            resume_id: resumeId
           }
         });
       }
