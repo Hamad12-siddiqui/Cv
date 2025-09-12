@@ -92,6 +92,7 @@ export const PreviewPage: React.FC = () => {
 
     const fetchImages = async () => {
       try {
+        
         const API_BASE_URL = "https://resume.cvaluepro.com/resume/images";
         const authToken = await getAuthToken();
 
