@@ -4,7 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useLanguage } from '../hooks/useLanguage';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { ArrowLeft, Linkedin, X, Copy } from 'lucide-react';
+import { ArrowLeft, X, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import PaymentForm from './PaymentForm';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
@@ -13,6 +13,8 @@ import axios from 'axios';
 interface LinkedInData {
   tagLine: string;
   profileSummary: string;
+  experiences?: string[];
+  certifications?: string[];
   email: string;
   phone: string;
 }
@@ -269,6 +271,98 @@ export const LinkedInPreview: React.FC = () => {
                 <span className="relative">{linkedInData.profileSummary}</span>
               </p>
             </div>
+            {/* Experiences Section */}
+            {Array.isArray(linkedInData.experiences) && linkedInData.experiences.length > 0 && (
+              <div className={`p-6 rounded-2xl ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">
+                    {language === 'ar' ? 'الخبرات' : 'Experiences'}
+                  </h2>
+                  {hasPaid && (
+                    <button
+                      onClick={() => handleCopy(linkedInData.experiences!.join('\n'))}
+                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
+                        isDarkMode 
+                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                          : 'hover:bg-gray-100 text-gray-600 hover:text-black'
+                      }`}
+                      title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span className="text-sm">{language === 'ar' ? 'نسخ' : 'Copy'}</span>
+                    </button>
+                  )}
+                </div>
+                <ul 
+                  className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} list-disc list-inside space-y-2`}
+                  onCopy={preventCopy}
+                  onCut={preventCopy}
+                  onContextMenu={preventCopy}
+                  style={{ 
+                    userSelect: hasPaid ? 'text' : 'none',
+                    WebkitUserSelect: hasPaid ? 'text' : 'none',
+                    MozUserSelect: hasPaid ? 'text' : 'none',
+                    msUserSelect: hasPaid ? 'text' : 'none'
+                  }}
+                >
+                  {!hasPaid && (
+                    <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex flex-col z-10 items-center justify-center text-white text-lg ">
+                      <MdOutlineRemoveRedEye className="w-5 h-5" />
+                      {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
+                    </span>
+                  )}
+                  {linkedInData.experiences!.map((exp, idx) => (
+                    <li key={idx} className="relative">{exp}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Certifications Section */}
+            {Array.isArray(linkedInData.certifications) && linkedInData.certifications.length > 0 && (
+              <div className={`p-6 rounded-2xl ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">
+                    {language === 'ar' ? 'الشهادات' : 'Certifications'}
+                  </h2>
+                  {hasPaid && (
+                    <button
+                      onClick={() => handleCopy(linkedInData.certifications!.join('\n'))}
+                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
+                        isDarkMode 
+                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                          : 'hover:bg-gray-100 text-gray-600 hover:text-black'
+                      }`}
+                      title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span className="text-sm">{language === 'ar' ? 'نسخ' : 'Copy'}</span>
+                    </button>
+                  )}
+                </div>
+                <ul 
+                  className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} list-disc list-inside space-y-2`}
+                  onCopy={preventCopy}
+                  onCut={preventCopy}
+                  onContextMenu={preventCopy}
+                  style={{ 
+                    userSelect: hasPaid ? 'text' : 'none',
+                    WebkitUserSelect: hasPaid ? 'text' : 'none',
+                    MozUserSelect: hasPaid ? 'text' : 'none',
+                    msUserSelect: hasPaid ? 'text' : 'none'
+                  }}
+                >
+                  {!hasPaid && (
+                    <span className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex flex-col z-10 items-center justify-center text-white text-lg ">
+                      <MdOutlineRemoveRedEye className="w-5 h-5" />
+                      {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay to unlock content'}
+                    </span>
+                  )}
+                  {linkedInData.certifications!.map((cert, idx) => (
+                    <li key={idx} className="relative">{cert}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {/* Instructions */}
             <div className={`p-6 rounded-2xl ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
               <h2 className="text-xl font-semibold mb-4">

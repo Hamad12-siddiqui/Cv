@@ -7,7 +7,7 @@ import { Footer } from './Footer';
 import PaymentForm from './PaymentForm';
 import { useTheme } from '../hooks/useTheme';
 import { useLanguage } from '../hooks/useLanguage';
-import { Loader2, Download, Eye, ArrowLeft, FileText, AlertCircle, ExternalLink } from 'lucide-react';
+import { Loader2, Eye, ArrowLeft, FileText, AlertCircle } from 'lucide-react';
 import ScrollToTop from '../components/ScrollToTop';
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 interface LocationState {
@@ -19,10 +19,6 @@ interface LocationState {
 const isMobileDevice = (): boolean => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
          window.innerWidth < 768;
-};
-// iOS detection utility  
-const isIOS = (): boolean => {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent);
 };
 export function CoverLetterPreview() {
   const location = useLocation();
@@ -44,6 +40,24 @@ export function CoverLetterPreview() {
   useEffect(() => {
     setIsMobile(isMobileDevice());
   }, []);
+  // Helper to get auth token for cover endpoints
+  const getCoverAuthToken = async (): Promise<string> => {
+    const form = new URLSearchParams();
+    form.append('grant_type', 'password');
+    form.append('username', 'abdullah@dmin786@gmail.com');
+    form.append('password', 'SSaadd12aa');
+    form.append('scope', '');
+    form.append('client_id', 'string');
+    form.append('client_secret', '********');
+    const resp = await axios.post('https://ai.cvaluepro.com/cover/token', form, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+      },
+    });
+    return resp.data.access_token;
+  };
+
   // Fetch image for preview (both desktop and mobile)
   useEffect(() => {
     if (state?.session_id && state?.cover_letter_filename) {
@@ -51,6 +65,7 @@ export function CoverLetterPreview() {
       const fetchImage = async () => {
         try {
           const API_BASE_URL = 'https://ai.cvaluepro.com/cover/images';
+          const token = await getCoverAuthToken();
           const response = await axios.post(
             API_BASE_URL,
             {
@@ -59,10 +74,11 @@ export function CoverLetterPreview() {
             },
             {
               headers: {
-                'ngrok-skip-browser-warning': 'true',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
               },
-              timeout: 30000,
+              timeout: 60000,
             }
           );
           let images: string[] | undefined;
@@ -123,6 +139,7 @@ export function CoverLetterPreview() {
         setError('');
         
         const API_BASE_URL = 'https://ai.cvaluepro.com/cover/download';
+        const token = await getCoverAuthToken();
         
         // Encode the filename to handle special characters
         const encodedFilename = encodeURIComponent(state.cover_letter_filename);
@@ -133,7 +150,7 @@ export function CoverLetterPreview() {
           responseType: 'blob',
           headers: {
             'Accept': 'application/pdf',
-            'ngrok-skip-browser-warning': 'true'
+            'Authorization': `Bearer ${token}`,
           },
           timeout: 30000,
         });
@@ -237,12 +254,12 @@ export function CoverLetterPreview() {
     toast.success(language === 'ar' ? 'تم تحميل الملف بنجاح' : 'File downloaded successfully');
     // Call delete-session API after payment success
     if (state?.session_id) {
-      axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
+      getCoverAuthToken().then(token => axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
         headers: {
           'accept': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
+          'Authorization': `Bearer ${token}`,
         }
-      }).catch((err) => {
+      })).catch((err) => {
         // Optionally log error, but don't block navigation
         console.error('Failed to delete session:', err);
       });
@@ -254,12 +271,12 @@ export function CoverLetterPreview() {
   const handleBackClick = () => {
     // Call delete-session API before navigating back
     if (state?.session_id) {
-      axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
+      getCoverAuthToken().then(token => axios.delete(`https://ai.cvaluepro.com/cover/delete-session/?session_id=${state.session_id}`, {
         headers: {
           'accept': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
+          'Authorization': `Bearer ${token}`,
         }
-      }).catch((err) => {
+      })).catch((err) => {
         // Optionally log error, but don't block navigation
         console.error('Failed to delete session:', err);
       });
@@ -282,7 +299,7 @@ export function CoverLetterPreview() {
       <ScrollToTop />
       <Header
         isDarkMode={isDarkMode}
-        language={String(language)}
+        language={language}
         toggleDarkMode={toggleDarkMode}
         toggleLanguage={toggleLanguage}
       />

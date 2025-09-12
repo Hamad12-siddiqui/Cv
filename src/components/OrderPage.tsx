@@ -24,6 +24,8 @@ interface UploadResponse {
   // LinkedIn specific fields
   tag_line?: string;
   profile_summary?: string;
+  experiences?: string[];
+  certifications?: string[];
 }
 
 interface FormData {
@@ -148,12 +150,33 @@ export const OrderPage: React.FC = () => {
     return true;
   };
 
+  // Auth token for Cover Letter APIs (token-based)
+  const getCoverAuthToken = async (): Promise<string> => {
+    const form = new URLSearchParams();
+    form.append('grant_type', 'password');
+    form.append('username', 'abdullah@dmin786@gmail.com');
+    form.append('password', 'SSaadd12aa');
+    form.append('scope', '');
+    form.append('client_id', 'string');
+    form.append('client_secret', '********');
+    const resp = await axios.post('https://ai.cvaluepro.com/cover/token', form, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+      },
+    });
+    return resp.data.access_token;
+  };
+
   const generateCoverLetter = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/cover';
 
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
+    // Generate a client-side session_id (string) required by the API
+    const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
+    formDataToSend.append('session_id', sessionId);
     formDataToSend.append('file', file, file.name);
     formDataToSend.append('company', formData.company);
     formDataToSend.append('location', formData.location);
@@ -171,11 +194,12 @@ export const OrderPage: React.FC = () => {
     // Record start time
     const startTime = Date.now();
 
+    const coverAuthToken = await getCoverAuthToken();
     const response = await axios.post(`${API_BASE_URL}/generate-cover-letter`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
-        "ngrok-skip-browser-warning": "true",
+        'Authorization': `Bearer ${coverAuthToken}`,
       },
       timeout: 120000, // 2 minutes timeout for cover letter generation
       onUploadProgress: (progressEvent) => {
@@ -200,20 +224,42 @@ export const OrderPage: React.FC = () => {
   const generateLinkedIn = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/linkedin';
 
+    // Helper to get auth token for LinkedIn endpoints
+    const getLinkedinAuthToken = async (): Promise<string> => {
+      const form = new URLSearchParams();
+      form.append('grant_type', 'password');
+      form.append('username', 'admin');
+      form.append('password', 'password123');
+      form.append('scope', '');
+      form.append('client_id', 'string');
+      form.append('client_secret', '********');
+      const resp = await axios.post(`${API_BASE_URL}/token`, form, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+      });
+      return resp.data.access_token;
+    };
+
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
 
+    // Create a client-side session id to pass as query param
+    const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
     // Record start time
     const startTime = Date.now();
 
-    const response = await axios.post(`${API_BASE_URL}/generate-linkedin`, formDataToSend, {
+    const linkedinAuthToken = await getLinkedinAuthToken();
+    const response = await axios.post(`${API_BASE_URL}/generate-linkedin?session_id=${encodeURIComponent(sessionId)}`, formDataToSend, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
-        'ngrok-skip-browser-warning': 'true',
+        'Authorization': `Bearer ${linkedinAuthToken}`,
       },
-      timeout: 60000,
+      timeout: 120000,
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -225,10 +271,20 @@ export const OrderPage: React.FC = () => {
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
 
-    // Store processing time to be used after getting resume_id
-    response.data.processingTimeSeconds = processingTimeSeconds;
+    // Map nested profile fields to top-level for UI consumption
+    const profile = response.data?.profile || {};
+    const mapped = {
+      ...response.data,
+      tag_line: profile.tag_line,
+      profile_summary: profile.profile_summary,
+      email: profile.email,
+      phone: profile.phone,
+      experiences: Array.isArray(profile.experiences) ? profile.experiences : [],
+      certifications: Array.isArray(profile.certifications) ? profile.certifications : [],
+      processingTimeSeconds,
+    } as UploadResponse;
 
-    return response.data;
+    return mapped;
   };
 
   const getAuthToken = async (): Promise<string> => {
@@ -394,6 +450,8 @@ export const OrderPage: React.FC = () => {
 
         // Fetch preview images for cover letter and resume
         const API_BASE_URL = 'https://ai.cvaluepro.com';
+        const coverAuthToken = await getCoverAuthToken();
+        const resumeAuthToken = await getAuthToken();
         const [coverLetterImagesResponse, resumeImagesResponse] = await Promise.all([
           // Fetch cover letter images
           axios.post(`${API_BASE_URL}/cover/images`, {
@@ -401,18 +459,24 @@ export const OrderPage: React.FC = () => {
             filename: coverLetterResponse.cover_letter_filename || coverLetterResponse.file_name
           }, {
             headers: {
-              'ngrok-skip-browser-warning': 'true',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${coverAuthToken}`,
             }
           }),
           // Fetch resume images
-          axios.post(`${API_BASE_URL}/resume/images`, {
+          axios.post(`https://resume.cvaluepro.com/resume/images`, {
             session_id: resumeResponse.session_id,
-            filenames: [resumeResponse.classic_resume_url, resumeResponse.modern_resume_url]
+            filenames: [
+              resumeResponse.classic_resume_url,
+              resumeResponse.modern_resume_url,
+              resumeResponse.dummy_modern_resume_url,
+            ].filter(Boolean)
           }, {
             headers: {
-              'ngrok-skip-browser-warning': 'true',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${resumeAuthToken}`,
             }
           })
         ]);
@@ -482,6 +546,8 @@ export const OrderPage: React.FC = () => {
           state: {
             tagLine: linkedinResponse.tag_line,
             profileSummary: linkedinResponse.profile_summary,
+            experiences: linkedinResponse.experiences,
+            certifications: linkedinResponse.certifications,
             email: linkedinResponse.email,
             phone: linkedinResponse.phone,
             resume_id: resumeId // Pass resume_id to LinkedInPreview

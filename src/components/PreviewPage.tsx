@@ -96,88 +96,46 @@ export const PreviewPage: React.FC = () => {
   useEffect(() => {
     setPreviewImageError("");
     setPreviewImageLoading(true);
-    setPreviewImages({ classic: [], modern: [] });
+    setPreviewImages({ classic: [], modern: [], dummyModern: [] });
 
     const fetchImages = async () => {
       try {
-
         const API_BASE_URL = "https://resume.cvaluepro.com/resume/images";
         const authToken = await getAuthToken();
 
-        // Fetch images for classic, modern, and dummy modern resumes
-        const [classicResponse, modernResponse, dummyModernResponse] = await Promise.all([
-          axios.post(
-            API_BASE_URL,
-            {
-              session_id: String(state.sessionId),
-              filenames: [state.classicResumeUrl],
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              timeout: 30000,
-              validateStatus: () => true, // Always resolve, handle errors manually
-            }
-          ),
-          axios.post(
-            API_BASE_URL,
-            {
-              session_id: String(state.sessionId),
-              filenames: [state.modernResumeUrl],
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              timeout: 30000,
-              validateStatus: () => true, // Always resolve, handle errors manually
-            }
-          ),
-          axios.post(
-            API_BASE_URL,
-            {
-              session_id: String(state.sessionId),
-              filenames: [state.dummyModernResumeUrl],
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              timeout: 30000,
-              validateStatus: () => true, // Always resolve, handle errors manually
-            }
-          ),
-        ]);
+        const filenames = [
+          state.classicResumeUrl,
+          state.modernResumeUrl,
+          state.dummyModernResumeUrl,
+        ].filter(Boolean) as string[];
 
-        // Process classic resume images
-        let classicImages = [];
-        if (classicResponse.status === 200 && classicResponse.data) {
-          const classicKey = Object.keys(classicResponse.data)[0];
-          classicImages = classicResponse.data[classicKey] || [];
+        const response = await axios.post(
+          API_BASE_URL,
+          {
+            session_id: String(state.sessionId),
+            filenames,
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            timeout: 60000,
+            validateStatus: () => true, // Always resolve, handle errors manually
+          }
+        );
+
+        if (response.status !== 200 || !response.data) {
+          throw new Error('Failed to load images');
         }
 
-        // Process modern resume images
-        let modernImages = [];
-        if (modernResponse.status === 200 && modernResponse.data) {
-          const modernKey = Object.keys(modernResponse.data)[0];
-          modernImages = modernResponse.data[modernKey] || [];
-        }
+        const data = response.data || {};
 
-        // Process dummy modern resume images
-        let dummyModernImages = [];
-        if (dummyModernResponse.status === 200 && dummyModernResponse.data) {
-          const dummyModernKey = Object.keys(dummyModernResponse.data)[0];
-          dummyModernImages = dummyModernResponse.data[dummyModernKey] || [];
-        }
+        const classicImages = data[state.classicResumeUrl] || [];
+        const modernImages = data[state.modernResumeUrl] || [];
+        const dummyModernImages = data[state.dummyModernResumeUrl] || [];
 
-        // Combine images into a single state
         setPreviewImages({
           classic: classicImages,
           modern: modernImages,
@@ -194,7 +152,7 @@ export const PreviewPage: React.FC = () => {
 
     fetchImagesRef.current = fetchImages;
     fetchImages();
-  }, [state.classicResumeUrl, state.modernResumeUrl, state.sessionId, language]);
+  }, [state.classicResumeUrl, state.modernResumeUrl, state.dummyModernResumeUrl, state.sessionId, language]);
 
   // Update rendering logic to display images directly
   const renderPreviewImages = (type: 'classic' | 'modern') => {
@@ -243,12 +201,18 @@ export const PreviewPage: React.FC = () => {
       return null; // No fallback text, just return null
     }
   };
+  // Helper to map active tab key to state keys
+  const getPreviewImagesFor = (type: 'classic' | 'modern' | 'dummy-modern'): string[] => {
+    if (!previewImages) return [];
+    if (type === 'dummy-modern') return previewImages.dummyModern || [];
+    return previewImages[type] || [];
+  };
   // State for payment form visibility
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedResumeType, setSelectedResumeType] = useState<'classic' | 'modern' | 'dummy-modern'>('classic');
 
   // Handle download button click
-  const handleDownload = (resumeType: 'classic' | 'modern') => {
+  const handleDownload = (resumeType: 'classic' | 'modern' | 'dummy-modern') => {
     setSelectedResumeType(resumeType);
     setShowPaymentForm(true);
   };
@@ -334,13 +298,14 @@ export const PreviewPage: React.FC = () => {
       // Show success message
       toast.success(String(language) === 'ar' ? 'تم تحميل السيرة الذاتية بنجاح' : 'Resume downloaded successfully');
 
-      // Call delete-session API after payment and before redirect
+      // Call delete-session API after payment and before redirect (authorized)
       try {
         await axios.delete(
-          `https://ai.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
+          `https://resume.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
           {
             headers: {
               'accept': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
             },
           }
         );
@@ -364,19 +329,25 @@ export const PreviewPage: React.FC = () => {
   const handleBackClick = () => {
     // Call delete-session API before navigating home
     if (state && state.sessionId) {
-      axios.delete(
-        `https://ai.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
-        {
-          headers: {
-            'accept': 'application/json',
-          },
-        }
-      ).catch((err) => {
-        // Optionally log/report error, but don't block navigation
-        console.error('Session delete error:', err);
-      }).finally(() => {
-        navigate("/", { replace: true });
-      });
+      getAuthToken()
+        .then((token) =>
+          axios.delete(
+            `https://resume.cvaluepro.com/resume/delete-session/?session_id=${state.sessionId}`,
+            {
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+            }
+          )
+        )
+        .catch((err) => {
+          // Optionally log/report error, but don't block navigation
+          console.error('Session delete error:', err);
+        })
+        .finally(() => {
+          navigate("/", { replace: true });
+        });
     } else {
       navigate("/", { replace: true });
     }
@@ -785,9 +756,9 @@ export const PreviewPage: React.FC = () => {
                       {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
                     </button>
                   </div>
-                ) : previewImages && previewImages[activePreview] && previewImages[activePreview].length > 0 ? (
+                ) : getPreviewImagesFor(activePreview).length > 0 ? (
                   <div className="flex flex-col gap-4 items-center justify-center py-4">
-                    {previewImages[activePreview].map((img: string, idx: number) => (
+                    {getPreviewImagesFor(activePreview).map((img: string, idx: number) => (
                       <div key={idx} className="relative w-full h-full">
                         <img
                           src={img}
