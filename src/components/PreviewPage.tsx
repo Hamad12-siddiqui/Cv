@@ -2,220 +2,36 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
+import { Header } from "./Header"
+import { Footer } from "./Footer"
+import PaymentForm from "./PaymentForm"
+import { useTheme } from "../hooks/useTheme"
 import { useLanguage } from "../hooks/useLanguage"
-import { Loader2, ArrowLeft, AlertCircle } from "lucide-react"
-
-type PreviewType = 'classic' | 'modern' | 'dummy-modern';
+import { Loader2, Download, Eye, ArrowLeft, FileText, Sparkles, X, AlertCircle } from "lucide-react"
+import { MdOutlineRemoveRedEye } from "react-icons/md"
 
 interface LocationState {
-  sessionId: string;
-  classicResumeUrl: string;
-  modernResumeUrl: string;
-  dummyModernResumeUrl: string;
-  email?: string;
-  phone?: string;
-  resume_id?: number;
-  previewType?: PreviewType;
+  sessionId: string
+  classicResumeUrl: string
+  modernResumeUrl: string
+  dummyModernResumeUrl: string
+  email?: string
+  phone?: string
+  resume_id?: number
 }
+export const PreviewPage: React.FC = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const state = location.state as LocationState
+  const { isDarkMode, toggleDarkMode } = useTheme()
+  const { language, toggleLanguage } = useLanguage()
+  const [classicPdfUrl, setClassicPdfUrl] = useState<string>("")
 
-interface ImageState {
-  classic: string | null;
-  modern: string | null;
-  dummyModern: string | null;
-}
-
-const getAuthToken = async () => {
-  // Replace with actual auth token retrieval
-  return "your-auth-token";
-};
-
-const PreviewPage = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { language } = useLanguage();
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [imageUrls, setImageUrls] = useState<ImageState>({
-    classic: null,
-    modern: null,
-    dummyModern: null,
-  });
-
-  // Initialize location state
-  const [state] = useState<LocationState>(() => {
-    const locationState = location.state as LocationState;
-    if (!locationState?.sessionId) {
-      setTimeout(() => {
-        if (language === 'ar') {
-          toast.error("لم يتم العثور على معلومات السيرة الذاتية");
-        } else {
-          toast.error("Resume information not found");
-        }
-        navigate('/');
-      }, 0);
-      return {
-        sessionId: "",
-        classicResumeUrl: "",
-        modernResumeUrl: "",
-        dummyModernResumeUrl: "",
-      };
-    }
-    return locationState;
-  });
-
-  const goBack = () => navigate(-1);
-
-  return (
-    <div className="bg-background text-foreground min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <button
-          onClick={goBack}
-          className="flex items-center gap-2 mb-4 text-primary hover:text-primary/80"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {language === 'ar' ? 'رجوع' : 'Back'}
-        </button>
-
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-64 text-red-500">
-            <AlertCircle className="w-6 h-6 mr-2" />
-            {error}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {imageUrls.classic && (
-              <div className="relative rounded-lg overflow-hidden border border-border">
-                <img
-                  src={imageUrls.classic}
-                  alt="Classic Resume"
-                  className="w-full h-auto"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4">
-                  <h3 className="text-lg font-semibold">
-                    {language === 'ar' ? 'السيرة الذاتية الكلاسيكية' : 'Classic Resume'}
-                  </h3>
-                </div>
-              </div>
-            )}
-
-            {imageUrls.modern && (
-              <div className="relative rounded-lg overflow-hidden border border-border">
-                <img
-                  src={imageUrls.modern}
-                  alt="Modern Resume"
-                  className="w-full h-auto"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4">
-                  <h3 className="text-lg font-semibold">
-                    {language === 'ar' ? 'السيرة الذاتية الحديثة' : 'Modern Resume'}
-                  </h3>
-                </div>
-              </div>
-            )}
-
-            {imageUrls.dummyModern && (
-              <div className="relative rounded-lg overflow-hidden border border-border">
-                <img
-                  src={imageUrls.dummyModern}
-                  alt="Professional Resume"
-                  className="w-full h-auto"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4">
-                  <h3 className="text-lg font-semibold">
-                    {language === 'ar' ? 'السيرة الذاتية المتقدمة' : 'Professional Resume'}
-                  </h3>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // Fetch images from the API
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const API_BASE_URL = "https://resume.cvaluepro.com/resume/images";
-        const authToken = await getAuthToken();
-        
-        // Create array of valid URLs to fetch
-        const urlRequests = [];
-        const responseMap = new Map();
-        
-        // Helper function to create a request
-        const createRequest = (url: string, type: string) => {
-          return axios.post(
-            API_BASE_URL,
-            {
-              session_id: String(state.sessionId),
-              filenames: [url],
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              timeout: 30000,
-              validateStatus: () => true,
-            }
-          ).then(response => responseMap.set(type, response));
-        };
-
-        // Only add requests for URLs that exist
-        if (state.classicResumeUrl) {
-          urlRequests.push(createRequest(state.classicResumeUrl, 'classic'));
-        }
-        
-        if (state.modernResumeUrl) {
-          urlRequests.push(createRequest(state.modernResumeUrl, 'modern'));
-        }
-        
-        if (state.dummyModernResumeUrl) {
-          urlRequests.push(createRequest(state.dummyModernResumeUrl, 'dummyModern'));
-        }
-
-        // Wait for all valid requests to complete
-        await Promise.all(urlRequests);
-
-        // Set images based on successful responses
-        setImageUrls(prevUrls => ({
-          ...prevUrls,
-          classic: responseMap.get('classic')?.data?.images?.[0] || prevUrls.classic,
-          modern: responseMap.get('modern')?.data?.images?.[0] || prevUrls.modern,
-          dummyModern: responseMap.get('dummyModern')?.data?.images?.[0] || prevUrls.dummyModern,
-        }));
-      } catch (err) {
-        console.error('Error fetching images:', err);
-        setError(language === 'ar' ? 'حدث خطأ أثناء تحميل الصور' : 'Error loading images');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (state.sessionId) {
-      fetchImages();
-    }
-  }, [state.sessionId, state.classicResumeUrl, state.modernResumeUrl, state.dummyModernResumeUrl, language]);
-
-  const [images, setImages] = useState<{
-    classic: string | null;
-    modern: string | null;
-    dummyModern: string | null;
-  }>({
-    classic: null,
-    modern: null,
-    dummyModern: null,
-  });
+  // Mobile screenshot/recording overlay state
+  const [showMobileOverlay, setShowMobileOverlay] = useState(false)
+  const [modernPdfUrl, setModernPdfUrl] = useState<string>("")
+  const [dummyModernPdfUrl, setDummyModernPdfUrl] = useState<string>("")
+  const [activePreview, setActivePreview] = useState<"classic" | "modern" | "dummy-modern">("classic")
 
   // Mobile image preview state
   const [isMobile, setIsMobile] = useState(false)
@@ -229,18 +45,6 @@ const PreviewPage = () => {
     if (!state || !state.sessionId) {
       toast.error(String(language) === "ar" ? "لم يتم العثور على معلومات السيرة الذاتية" : "Resume information not found")
       navigate("/")
-      return;
-    }
-    
-    // Validate individual URLs
-    if (!state.classicResumeUrl) {
-      console.warn("Classic resume URL is missing");
-    }
-    if (!state.modernResumeUrl) {
-      console.warn("Modern resume URL is missing");
-    }
-    if (!state.dummyModernResumeUrl) {
-      console.warn("Dummy modern resume URL is missing");
     }
   }, [state, navigate, language])
   useEffect(() => {
@@ -291,53 +95,8 @@ const PreviewPage = () => {
         const API_BASE_URL = "https://resume.cvaluepro.com/resume/images";
         const authToken = await getAuthToken();
 
-        // Create array of valid URLs to fetch
-        const urlRequests = [];
-        const responseMap = new Map();
-
-        // Helper function to create a request
-        const createRequest = (url: string, type: string) => {
-          return axios.post(
-            API_BASE_URL,
-            {
-              session_id: String(state.sessionId),
-              filenames: [url],
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              timeout: 30000,
-              validateStatus: () => true,
-            }
-          ).then(response => responseMap.set(type, response));
-        };
-
-        // Only add requests for URLs that exist
-        if (state.classicResumeUrl) {
-          urlRequests.push(createRequest(state.classicResumeUrl, 'classic'));
-        }
-
-        if (state.modernResumeUrl) {
-          urlRequests.push(createRequest(state.modernResumeUrl, 'modern'));
-        }
-
-        if (state.dummyModernResumeUrl) {
-          urlRequests.push(createRequest(state.dummyModernResumeUrl, 'dummyModern'));
-        }
-
-        // Wait for all valid requests to complete
-        await Promise.all(urlRequests);
-
-        // Set images based on successful responses
-        setImages(prevImages => ({
-          ...prevImages,
-          classic: responseMap.get('classic')?.data?.images?.[0] || prevImages.classic,
-          modern: responseMap.get('modern')?.data?.images?.[0] || prevImages.modern,
-          dummyModern: responseMap.get('dummyModern')?.data?.images?.[0] || prevImages.dummyModern
-        }));
+        // Fetch images for classic, modern, and dummy modern resumes
+        const [classicResponse, modernResponse, dummyModernResponse] = await Promise.all([
           axios.post(
             API_BASE_URL,
             {
@@ -589,6 +348,7 @@ const PreviewPage = () => {
       toast.error(String(language) === 'ar' ? 'حدث خطأ أثناء تحميل السيرة الذاتية' : 'Error downloading resume');
     }
 
+    // Close payment form
     setShowPaymentForm(false);
   };
 
@@ -743,6 +503,7 @@ const PreviewPage = () => {
                           <MdOutlineRemoveRedEye className="text-white " size={36} />
                           <span className="text-white text-lg font-bold">Locked Content</span>
                         </div>
+                        {/* Page Number Overlay */}
                         <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
                           {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
                         </div>
@@ -753,6 +514,7 @@ const PreviewPage = () => {
               </div>
             </div>
           </div>
+          {/* Modern Resume Images */}
           <div
             className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
               ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
