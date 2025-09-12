@@ -30,7 +30,7 @@ interface FormData {
   location: string;
   jobTitle: string;
   jobDescription: string;
- 
+
 }
 
 export const OrderPage: React.FC = () => {
@@ -41,7 +41,7 @@ export const OrderPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Cover letter form data
   const [formData, setFormData] = useState<FormData>({
     company: '',
@@ -54,7 +54,7 @@ export const OrderPage: React.FC = () => {
 
   const getServiceContent = () => {
     switch (serviceType) {
-      case 'cv':  
+      case 'cv':
         return currentContent.orderPage.cv;
       case 'linkedin':
         return currentContent.orderPage.linkedin;
@@ -70,15 +70,15 @@ export const OrderPage: React.FC = () => {
   const validateFile = (file: File): boolean => {
     const validTypes = ['application/pdf'];
     const maxSize = 30 * 1024 * 1024; // 30MB
-    
+
     if (!validTypes.includes(file.type)) {
-      toast.error(language === 'ar' 
+      toast.error(language === 'ar'
         ? `نوع ملف غير صالح: ${file.name}. يرجى رفع ملفات PDF فقط.`
         : `Invalid file type: ${file.name}. Please upload PDF files only.`
       );
       return false;
     }
-    
+
     if (file.size > maxSize) {
       toast.error(language === 'ar'
         ? `الملف كبير جداً: ${file.name}. الحد الأقصى للحجم هو 30 ميجابايت.`
@@ -86,7 +86,7 @@ export const OrderPage: React.FC = () => {
       );
       return false;
     }
-    
+
     return true;
   };
 
@@ -127,7 +127,7 @@ export const OrderPage: React.FC = () => {
 
   const validateCoverLetterForm = (): boolean => {
     const { company, location, jobTitle, jobDescription } = formData;
-    
+
     if (!company.trim() || !location.trim() || !jobTitle.trim() || !jobDescription.trim()) {
       toast.error(language === 'ar'
         ? 'يرجى ملء جميع حقول الوظيفة.'
@@ -135,7 +135,7 @@ export const OrderPage: React.FC = () => {
       );
       return false;
     }
-    
+
     if (jobDescription.length < 50) {
       toast.error(language === 'ar'
         ? 'يجب أن يكون وصف الوظيفة أكثر من 50 حرف.'
@@ -143,22 +143,22 @@ export const OrderPage: React.FC = () => {
       );
       return false;
     }
-    
+
     return true;
   };
 
   const generateCoverLetter = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/cover';
-    
+
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
-    
+
     formDataToSend.append('file', file, file.name);
     formDataToSend.append('company', formData.company);
     formDataToSend.append('location', formData.location);
     formDataToSend.append('job_title', formData.jobTitle);
     formDataToSend.append('job_description', formData.jobDescription);
-    
+
     // Debug logging
     console.log('Sending cover letter generation request with:');
     console.log('File:', file.name);
@@ -174,7 +174,7 @@ export const OrderPage: React.FC = () => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
-           "ngrok-skip-browser-warning": "true",
+        "ngrok-skip-browser-warning": "true",
       },
       timeout: 120000, // 2 minutes timeout for cover letter generation
       onUploadProgress: (progressEvent) => {
@@ -184,12 +184,12 @@ export const OrderPage: React.FC = () => {
         }
       },
     });
-    
+
     console.log('Cover letter generation response:', response.data);
 
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
-    
+
     // Store processing time to be used after getting resume_id
     response.data.processingTimeSeconds = processingTimeSeconds;
 
@@ -198,7 +198,7 @@ export const OrderPage: React.FC = () => {
 
   const generateLinkedIn = async (): Promise<UploadResponse> => {
     const API_BASE_URL = 'https://ai.cvaluepro.com/linkedin';
-    
+
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
@@ -223,25 +223,39 @@ export const OrderPage: React.FC = () => {
 
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
-    
+
     // Store processing time to be used after getting resume_id
     response.data.processingTimeSeconds = processingTimeSeconds;
 
     return response.data;
   };
 
-  const generateResume = async (): Promise<UploadResponse> => {
-    const API_BASE_URL = 'https://ai.cvaluepro.com/resume';
-    
-    // Health check first
-    await axios.get(`${API_BASE_URL}/health-check`, {
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-        'Accept': 'application/json'
-      },
-      timeout: 10000
-    });
+  const getAuthToken = async (): Promise<string> => {
+    const formData = new URLSearchParams();
+    formData.append('username', 'admin');
+    formData.append('password', 'password123');
 
+    try {
+      const response = await axios.post('https://resume.cvaluepro.com/resume/token', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        }
+      });
+      return response.data.access_token;
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      throw new Error('Failed to authenticate with the server');
+    }
+  };
+
+  const generateResume = async (): Promise<UploadResponse> => {
+    const API_BASE_URL = 'https://resume.cvaluepro.com/resume';
+
+    // Get authentication token
+    const authToken = await getAuthToken();
+
+    // Create form data for file upload
     const formDataToSend = new FormData();
     const file = uploadedFiles[0];
     formDataToSend.append('file', file, file.name);
@@ -254,6 +268,7 @@ export const OrderPage: React.FC = () => {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
         'ngrok-skip-browser-warning': 'true',
+        'Authorization': `Bearer ${authToken}`,
       },
       timeout: 60000,
       onUploadProgress: (progressEvent) => {
@@ -285,7 +300,7 @@ export const OrderPage: React.FC = () => {
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );
-      
+
       // If we have both resume_id and processing time, report it
       if (resp.data?.resume_id && processingTimeSeconds !== undefined) {
         try {
@@ -301,7 +316,7 @@ export const OrderPage: React.FC = () => {
           console.error('Failed to record processing time:', error);
         }
       }
-      
+
       // Return resume_id if present
       return resp.data?.resume_id;
     } catch (err: any) {
@@ -333,7 +348,7 @@ export const OrderPage: React.FC = () => {
 
     setIsUploading(true);
     setUploadProgress(0);
-    
+
     try {
       let responseData: UploadResponse;
 
@@ -418,7 +433,7 @@ export const OrderPage: React.FC = () => {
         });
       } else if (serviceType === 'cover-letter') {
         responseData = await generateCoverLetter();
-        
+
         // Immediately report failed resume for cover letter
         let resumeId;
         if (responseData.email && responseData.phone) {
@@ -462,7 +477,7 @@ export const OrderPage: React.FC = () => {
         });
       } else {
         responseData = await generateResume();
-        
+
         // Immediately report failed resume for CV enhancement
         let resumeId;
         if (responseData.email && responseData.phone) {
@@ -491,9 +506,9 @@ export const OrderPage: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Upload error:', error);
-      
-      let errorMessage = language === 'ar' 
-        ? 'فشل في الرفع. يرجى المحاولة مرة أخرى.' 
+
+      let errorMessage = language === 'ar'
+        ? 'فشل في الرفع. يرجى المحاولة مرة أخرى.'
         : 'Upload failed. Please try again.';
 
       if (axios.isAxiosError(error)) {
@@ -528,7 +543,7 @@ export const OrderPage: React.FC = () => {
       const confirmMessage = language === 'ar'
         ? 'هل أنت متأكد من الإلغاء؟ ستفقد جميع البيانات المدخلة.'
         : 'Are you sure you want to cancel? All entered data will be lost.';
-      
+
       if (window.confirm(confirmMessage)) {
         setUploadedFiles([]);
         setFormData({ company: '', location: '', jobTitle: '', jobDescription: '' });
@@ -561,11 +576,10 @@ export const OrderPage: React.FC = () => {
           <div className="mb-8 ">
             <button
               onClick={handleBack}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
-                isDarkMode 
-                  ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                  : 'bg-gray-100 hover:bg-gray-200 text-black border border-gray-200'
-              }`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${isDarkMode
+                ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
+                : 'bg-gray-100 hover:bg-gray-200 text-black border border-gray-200'
+                }`}
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}</span>
@@ -583,16 +597,15 @@ export const OrderPage: React.FC = () => {
           </div>
 
           {/* Upload Area */}
-          <div className={`border-2 border-dashed rounded-2xl p-8 mb-8 transition-all duration-300 cursor-pointer ${
-            isDragActive 
-              ? (isDarkMode ? 'border-blue-400 bg-blue-900/20' : 'border-blue-500 bg-blue-50')
-              : (isDarkMode ? 'border-gray-600 hover:border-gray-400' : 'border-gray-300 hover:border-gray-500')
-          }`}>
+          <div className={`border-2 border-dashed rounded-2xl p-8 mb-8 transition-all duration-300 cursor-pointer ${isDragActive
+            ? (isDarkMode ? 'border-blue-400 bg-blue-900/20' : 'border-blue-500 bg-blue-50')
+            : (isDarkMode ? 'border-gray-600 hover:border-gray-400' : 'border-gray-300 hover:border-gray-500')
+            }`}>
             <div {...getRootProps()} className="text-center">
               <input {...getInputProps()} />
               <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragActive ? 'text-blue-500' : 'opacity-60'}`} />
               <p className="text-lg mb-2">
-                {isDragActive 
+                {isDragActive
                   ? (language === 'ar' ? 'أفلت الملف هنا...' : 'Drop the file here...')
                   : currentContent.orderPage.uploadText
                 }
@@ -616,7 +629,7 @@ export const OrderPage: React.FC = () => {
                 <span className="text-sm text-gray-500">{uploadProgress}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
@@ -727,24 +740,22 @@ export const OrderPage: React.FC = () => {
             <button
               onClick={handleCancel}
               disabled={isUploading}
-              className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 border-2 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                isDarkMode 
-                  ? 'border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white disabled:hover:border-gray-600 disabled:hover:text-gray-300' 
-                  : 'border-gray-300 text-gray-600 hover:border-gray-500 hover:text-black disabled:hover:border-gray-300 disabled:hover:text-gray-600'
-              }`}
+              className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 border-2 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${isDarkMode
+                ? 'border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white disabled:hover:border-gray-600 disabled:hover:text-gray-300'
+                : 'border-gray-300 text-gray-600 hover:border-gray-500 hover:text-black disabled:hover:border-gray-300 disabled:hover:text-gray-600'
+                }`}
             >
               {currentContent.orderPage.cancelButton}
             </button>
             <button
               onClick={handleUpload}
               disabled={isUploading || uploadedFiles.length === 0}
-              className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                isDarkMode 
-                  ? 'bg-white text-black hover:bg-gray-200 disabled:bg-gray-700 disabled:text-gray-400' 
-                  : 'bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500'
-              }`}
+              className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${isDarkMode
+                ? 'bg-white text-black hover:bg-gray-200 disabled:bg-gray-700 disabled:text-gray-400'
+                : 'bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500'
+                }`}
             >
-              {isUploading 
+              {isUploading
                 ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...')
                 : currentContent.orderPage.uploadButton
               }
