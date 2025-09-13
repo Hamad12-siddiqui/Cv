@@ -184,12 +184,6 @@ export const OrderPage: React.FC = () => {
     formDataToSend.append('job_description', formData.jobDescription);
 
     // Debug logging
-    console.log('Sending cover letter generation request with:');
-    console.log('File:', file.name);
-    console.log('Company:', formData.company);
-    console.log('Location:', formData.location);
-    console.log('Job Title:', formData.jobTitle);
-    console.log('Job Description length:', formData.jobDescription.length);
 
     // Record start time
     const startTime = Date.now();
@@ -210,7 +204,6 @@ export const OrderPage: React.FC = () => {
       },
     });
 
-    console.log('Cover letter generation response:', response.data);
 
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
@@ -310,7 +303,6 @@ export const OrderPage: React.FC = () => {
     const API_BASE_URL = 'https://resume.cvaluepro.com/resume';
 
     // Debug log for resume generation
-    console.log('Starting resume generation...');
 
     // Get authentication token
     const authToken = await getAuthToken();
@@ -340,12 +332,6 @@ export const OrderPage: React.FC = () => {
     });
 
     // Debug log API response
-    console.log('Resume generation response:', {
-      sessionId: response.data.session_id,
-      classicUrl: response.data.classic_resume_url,
-      modernUrl: response.data.modern_resume_url,
-      dummyModernUrl: response.data.dummy_modern_resume_url // Check if this exists in response
-    });
 
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
@@ -362,7 +348,6 @@ export const OrderPage: React.FC = () => {
       contact: phone // only send 'contact', not 'phone'
     };
     try {
-      console.log('Reporting failed resume payload:', payload);
       const resp = await axios.post(
         'https://admin.cvaluepro.com/dashboard/resumes/failed',
         payload,

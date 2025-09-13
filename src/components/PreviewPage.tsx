@@ -42,13 +42,6 @@ export const PreviewPage: React.FC = () => {
   const [fullScreenImg, setFullScreenImg] = useState<string | null>(null)
 
   useEffect(() => {
-    // Debug log to check incoming state
-    console.log('PreviewPage state:', {
-      sessionId: state?.sessionId,
-      classicUrl: state?.classicResumeUrl,
-      modernUrl: state?.modernResumeUrl,
-      dummyModernUrl: state?.dummyModernResumeUrl
-    });
 
     if (!state || !state.sessionId) {
       toast.error(String(language) === "ar" ? "لم يتم العثور على معلومات السيرة الذاتية" : "Resume information not found")

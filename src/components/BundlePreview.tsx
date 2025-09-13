@@ -75,20 +75,6 @@ export const BundlePreview: React.FC = () => {
 
   // Ensure we have all the required data
   React.useEffect(() => {
-    // Debug log to check incoming state
-    console.log('BundlePreview state:', {
-      hasState: !!state,
-      hasCoverLetter: !!state?.coverLetter,
-      hasLinkedin: !!state?.linkedin,
-      hasResume: !!state?.resume,
-      resumeData: state?.resume ? {
-        sessionId: state.resume.sessionId,
-        classicResumeUrl: state.resume.classicResumeUrl,
-        modernResumeUrl: state.resume.modernResumeUrl,
-        dummyModernResumeUrl: state.resume.dummyModernResumeUrl,
-        hasPreviewImages: !!state.resume.previewImages
-      } : null
-    });
 
     if (!state || !state.coverLetter || !state.linkedin) {
       toast.error(
@@ -207,12 +193,6 @@ export const BundlePreview: React.FC = () => {
       },
     });
 
-    console.log('Resume generation response:', {
-      sessionId: response.data.session_id,
-      classicUrl: response.data.classic_resume_url,
-      modernUrl: response.data.modern_resume_url,
-      dummyModernUrl: response.data.dummy_modern_resume_url
-    });
 
     // Calculate processing time in seconds
     const processingTimeSeconds = (Date.now() - startTime) / 1000;
@@ -556,7 +536,6 @@ export const BundlePreview: React.FC = () => {
             }
           }
         );
-        console.log(`Resume session ${bundleState.resume.sessionId} deleted successfully`);
       }
 
     } catch (error) {
@@ -725,11 +704,6 @@ export const BundlePreview: React.FC = () => {
                       <div className="grid grid-cols-1 gap-4">
                         {(() => {
                           const dummyImages = bundleState.resume.previewImages[bundleState.resume.dummyModernResumeUrl] || [];
-                          console.log('Dummy Modern Images:', {
-                            dummyModernResumeUrl: bundleState.resume.dummyModernResumeUrl,
-                            availableImages: dummyImages,
-                            allPreviewImages: bundleState.resume.previewImages
-                          });
                           return dummyImages;
                         })().map((image: string, index: number) => (
                           <div key={`dummy-modern-${index}`} className="relative rounded-lg overflow-hidden shadow-lg">

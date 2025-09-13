@@ -121,7 +121,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
         return type;
     }
   };
-   
+
 
   return (
     <div className="relative w-full  mb-4">
@@ -132,15 +132,14 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
         onChange={handleInputValidation}
         required={required}
         placeholder={placeholder}
-        className={`w-full px-4 py-3  text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white border rounded-lg focus:outline-none transition-all duration-200 bg-white dark:bg-gray-800 ${
-          error ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-black'
-        }`}
-        autoComplete={name === 'number' ? 'cc-number' : 
-                     name === 'exp_month' || name === 'exp_year' ? 'cc-exp' :
-                     name === 'cvc' ? 'cc-csc' :
-                     name === 'name' ? 'cc-name' :
-                     name === 'email' ? 'email' :
-                     'off'}
+        className={`w-full px-4 py-3  text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white border rounded-lg focus:outline-none transition-all duration-200 bg-white dark:bg-gray-800 ${error ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-black'
+          }`}
+        autoComplete={name === 'number' ? 'cc-number' :
+          name === 'exp_month' || name === 'exp_year' ? 'cc-exp' :
+            name === 'cvc' ? 'cc-csc' :
+              name === 'name' ? 'cc-name' :
+                name === 'email' ? 'email' :
+                  'off'}
       />
       <label className="absolute border  -top-2.5 left-2 bg-white dark:bg-gray-800 px-2 text-xs text-gray-600 dark:text-white">{label}</label>
       {error && (
@@ -151,32 +150,32 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, type = "text", pla
 };
 
 const LoadingSpinner = () => (
-  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/>
+  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
 );
 
 const validateCardNumber = (number: string): boolean => {
   const cleaned = number.replace(/\s/g, '');
   // Check for exact 16 digits and Luhn algorithm
   if (!/^\d{16}$/.test(cleaned)) return false;
-  
+
   // Luhn algorithm implementation
   let sum = 0;
   let isEven = false;
-  
+
   for (let i = cleaned.length - 1; i >= 0; i--) {
     let digit = parseInt(cleaned[i], 10);
-    
+
     if (isEven) {
       digit *= 2;
       if (digit > 9) {
         digit -= 9;
       }
     }
-    
+
     sum += digit;
     isEven = !isEven;
   }
-  
+
   return sum % 10 === 0;
 };
 
@@ -194,7 +193,7 @@ const validateExpYear = (year: string): boolean => {
   const currentYear = new Date().getFullYear();
   // Must be 4 digits
   if (!/^\d{4}$/.test(year)) return false;
-  
+
   const num = parseInt(year, 10);
   return num >= currentYear && num <= currentYear + 10;
 };
@@ -208,14 +207,14 @@ const validateEmail = (email: string): boolean => {
 const validatePhone = (countryCode: string, number: string): boolean => {
   // Validate country code format (+1 to +999)
   const validCountryCode = /^\+\d{1,3}$/.test(countryCode);
-  
+
   // Clean the phone number (allow only digits and hyphens)
   const cleanedNumber = number.replace(/[^\d-]/g, '');
   const digitsOnly = cleanedNumber.replace(/-/g, '');
-  
+
   // Check if the number has 8-15 digits and proper formatting
   const validNumber = /^[\d-]{8,20}$/.test(cleanedNumber) && digitsOnly.length >= 8 && digitsOnly.length <= 15;
-  
+
   return validCountryCode && validNumber;
 };
 
@@ -288,7 +287,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const validateStep1 = () => {
     const newErrors: FormErrors = {};
-    
+
     if (!validateCardNumber(form.number)) {
       newErrors.number = 'Card number must be 16 digits';
     }
@@ -311,7 +310,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const validateStep2 = () => {
     const newErrors: FormErrors = {};
-    
+
     if (!form.country.trim()) newErrors.country = 'Country is required';
     if (!form.line1.trim()) newErrors.line1 = 'Address is required';
     if (!form.city.trim()) newErrors.city = 'City is required';
@@ -323,7 +322,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const validateStep3 = () => {
     const newErrors: FormErrors = {};
-    
+
     if (!form.first_name.trim()) newErrors.first_name = 'First name is required';
     if (!form.last_name.trim()) newErrors.last_name = 'Last name is required';
     if (!validateEmail(form.email)) newErrors.email = 'Enter a valid email';
@@ -335,9 +334,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleStepChange = (nextStep:any) => {
+  const handleStepChange = (nextStep: any) => {
     let canProceed = true;
-    
+
     if (nextStep > activeStep) {
       switch (activeStep) {
         case 1:
@@ -358,7 +357,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   };
 
-  const formatCardNumber = (value:any) => {
+  const formatCardNumber = (value: any) => {
     const cleaned = value.replace(/\s/g, '');
     const chunks = cleaned.match(/.{1,4}/g) || [];
     return chunks.join(' ');
@@ -374,7 +373,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
 
     setForm(prev => ({ ...prev, [name]: formattedValue }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -383,7 +382,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Validate all steps before submission
     const step1Valid = validateStep1();
     const step2Valid = validateStep2();
@@ -404,14 +403,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       const chargeResponse = await createCharge(tokenId, form, amount);
       setStatus({ loading: false, message: 'Payment successful! 🎉', error: false });
-      
+
       // If payment is successful and onSuccess callback is provided, call it
       if (chargeResponse && onSuccess) {
         setTimeout(() => {
           onSuccess();
         }, 1500); // Give user time to see success message
       }
-      console.log("Charge succeeded:", chargeResponse);
     } catch (error: any) {
       console.error("Payment error:", error);
       setStatus({ loading: false, message: (error && typeof error === 'object' && 'message' in error) ? error.message : 'Payment failed. Please try again.', error: true });
@@ -425,7 +423,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             {language === 'ar' ? 'الدفع الآمن' : 'Secure Payment'}
           </h2>
-         
+
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white dark:bg-gray-900 py-2  px-8 rounded-xl shadow-sm">
@@ -434,45 +432,45 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 {language === 'ar' ? 'معلومات البطاقة' : 'Card Information'}
               </h3>
-              <InputField 
-                label={labels.cardNumber} 
-                name="number" 
-                placeholder={placeholders.cardNumber} 
-                onChange={handleChange} 
+              <InputField
+                label={labels.cardNumber}
+                name="number"
+                placeholder={placeholders.cardNumber}
+                onChange={handleChange}
                 value={form.number}
                 error={errors.number}
               />
               <div className="grid grid-cols-3 gap-4">
-                <InputField 
-                  label={labels.month} 
-                  name="exp_month" 
-                  placeholder={placeholders.month} 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.month}
+                  name="exp_month"
+                  placeholder={placeholders.month}
+                  onChange={handleChange}
                   value={form.exp_month}
                   error={errors.exp_month}
                 />
-                <InputField 
-                  label={labels.year} 
-                  name="exp_year" 
-                  placeholder={placeholders.year} 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.year}
+                  name="exp_year"
+                  placeholder={placeholders.year}
+                  onChange={handleChange}
                   value={form.exp_year}
                   error={errors.exp_year}
                 />
-                <InputField 
-                  label={labels.cvc} 
-                  name="cvc" 
-                  placeholder={placeholders.cvc} 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.cvc}
+                  name="cvc"
+                  placeholder={placeholders.cvc}
+                  onChange={handleChange}
                   value={form.cvc}
                   error={errors.cvc}
                 />
               </div>
-              <InputField 
-                label={labels.cardholderName} 
-                name="name" 
-                placeholder={placeholders.cardholderName} 
-                onChange={handleChange} 
+              <InputField
+                label={labels.cardholderName}
+                name="name"
+                placeholder={placeholders.cardholderName}
+                onChange={handleChange}
                 value={form.name}
                 error={errors.name}
               />
@@ -491,38 +489,38 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 {language === 'ar' ? 'تفاصيل العنوان' : 'Address Details'}
               </h3>
-              <InputField 
-                label={labels.country} 
-                name="country" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.country}
+                name="country"
+                onChange={handleChange}
                 value={form.country}
                 error={errors.country}
               />
-              <InputField 
-                label={labels.addressLine1} 
-                name="line1" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.addressLine1}
+                name="line1"
+                onChange={handleChange}
                 value={form.line1}
                 error={errors.line1}
               />
-              <InputField 
-                label={labels.city} 
-                name="city" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.city}
+                name="city"
+                onChange={handleChange}
                 value={form.city}
                 error={errors.city}
               />
-              <InputField 
-                label={labels.street} 
-                name="street" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.street}
+                name="street"
+                onChange={handleChange}
                 value={form.street}
                 error={errors.street}
               />
-              <InputField 
-                label={labels.avenue} 
-                name="avenue" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.avenue}
+                name="avenue"
+                onChange={handleChange}
                 value={form.avenue}
                 required={false}
               />
@@ -551,49 +549,49 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                 {language === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label={labels.firstName} 
-                  name="first_name" 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.firstName}
+                  name="first_name"
+                  onChange={handleChange}
                   value={form.first_name}
                   error={errors.first_name}
                 />
-                <InputField 
-                  label={labels.lastName} 
-                  name="last_name" 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.lastName}
+                  name="last_name"
+                  onChange={handleChange}
                   value={form.last_name}
                   error={errors.last_name}
                 />
               </div>
-              <InputField 
-                label={labels.middleName} 
-                name="middle_name" 
-                required={false} 
-                onChange={handleChange} 
+              <InputField
+                label={labels.middleName}
+                name="middle_name"
+                required={false}
+                onChange={handleChange}
                 value={form.middle_name}
               />
-              <InputField 
-                label={labels.email} 
-                name="email" 
-                type="email" 
-                onChange={handleChange} 
+              <InputField
+                label={labels.email}
+                name="email"
+                type="email"
+                onChange={handleChange}
                 value={form.email}
                 error={errors.email}
               />
               <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label={labels.countryCode} 
-                  name="phone_country_code" 
-                  placeholder={placeholders.countryCode} 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.countryCode}
+                  name="phone_country_code"
+                  placeholder={placeholders.countryCode}
+                  onChange={handleChange}
                   value={form.phone_country_code}
                   error={errors.phone_country_code}
                 />
-                <InputField 
-                  label={labels.phoneNumber} 
-                  name="phone_number" 
-                  onChange={handleChange} 
+                <InputField
+                  label={labels.phoneNumber}
+                  name="phone_number"
+                  onChange={handleChange}
                   value={form.phone_number}
                   error={errors.phone_number}
                 />
@@ -626,9 +624,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         </form>
 
         {status.message && (
-          <div className={`mt-4 p-4 rounded-md ${
-            status.error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
-          } transition-all duration-200 animate-fadeIn`}>
+          <div className={`mt-4 p-4 rounded-md ${status.error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+            } transition-all duration-200 animate-fadeIn`}>
             {status.message}
           </div>
         )}

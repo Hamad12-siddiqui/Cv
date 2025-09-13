@@ -1,39 +1,36 @@
 @font-face {
-  font-family: 'Hagrid';
-  src: url('/fonts/Hagrid-Regular.woff2') format('woff2'),
-       url('/fonts/Hagrid-Regular.woff') format('woff');
+  font-family: "Hagrid";
+  src: url("/fonts/Hagrid-Regular.woff2") format("woff2"),
+    url("/fonts/Hagrid-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: '29LT Riwaya';
-  src: url('/fonts/29LTRiwaya-Regular.woff2') format('woff2'),
-       url('/fonts/29LTRiwaya-Regular.woff') format('woff');
+  font-family: "29LT Riwaya";
+  src: url("/fonts/29LTRiwaya-Regular.woff2") format("woff2"),
+    url("/fonts/29LTRiwaya-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
-/* @font-face {
-  font-family: 'Nomadica';
-  src: url('/path/to/Nomadica.woff2') format('woff2'),
-       url('/path/to/Nomadica.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-} */
- @font-face {
-  font-family: 'Didot';
-  src: url('/fonts/didot.woff2') format('woff2'),
-       url('/fonts/didot.woff') format('woff');
+@font-face {
+  font-family: "Didot";
+  src: url("/fonts/didot.woff2") format("woff2"),
+    url("/fonts/didot.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 .font-hagrid {
-  font-family: 'Hagrid', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  font-family: "Hagrid", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif;
 }
 
 .font-riwaya {
-  font-family: '29LT Riwaya', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  font-family: "29LT Riwaya", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif;
 }

@@ -17,8 +17,8 @@ interface LocationState {
 }
 // Mobile detection utility
 const isMobileDevice = (): boolean => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-         window.innerWidth < 768;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
 };
 export function CoverLetterPreview() {
   const location = useLocation();
@@ -106,9 +106,9 @@ export function CoverLetterPreview() {
   }, [state]);
   useEffect(() => {
     if (!state || !state.session_id || !state.cover_letter_filename) {
-      console.error('Missing data:', { 
-        session_id: state?.session_id, 
-        cover_letter_filename: state?.cover_letter_filename 
+      console.error('Missing data:', {
+        session_id: state?.session_id,
+        cover_letter_filename: state?.cover_letter_filename
       });
       toast.error(language === 'ar' ? 'لم يتم العثور على معلومات خطاب التغطية' : 'Cover letter information not found');
       navigate('/');
@@ -117,8 +117,8 @@ export function CoverLetterPreview() {
   useEffect(() => {
     const downloadCoverLetter = async () => {
       if (!state?.session_id) {
-        const errorMessage = language === 'ar' 
-          ? 'معرف الجلسة مفقود' 
+        const errorMessage = language === 'ar'
+          ? 'معرف الجلسة مفقود'
           : 'Session ID is missing';
         setError(errorMessage);
         toast.error(errorMessage);
@@ -127,8 +127,8 @@ export function CoverLetterPreview() {
       }
       // Better filename validation
       if (!state.cover_letter_filename || state.cover_letter_filename === 'undefined' || state.cover_letter_filename === 'null') {
-        const errorMessage = language === 'ar' 
-          ? 'اسم ملف خطاب التغطية مفقود أو غير صالح' 
+        const errorMessage = language === 'ar'
+          ? 'اسم ملف خطاب التغطية مفقود أو غير صالح'
           : 'Cover letter filename is missing or invalid';
         setError(errorMessage);
         toast.error(errorMessage);
@@ -137,15 +137,14 @@ export function CoverLetterPreview() {
       try {
         setIsLoading(true);
         setError('');
-        
+
         const API_BASE_URL = 'https://ai.cvaluepro.com/cover/download';
         const token = await getCoverAuthToken();
-        
+
         // Encode the filename to handle special characters
         const encodedFilename = encodeURIComponent(state.cover_letter_filename);
         const downloadUrl = `${API_BASE_URL}?session_id=${state.session_id}&filename=${encodedFilename}`;
-        
-        console.log('Attempting to download from:', downloadUrl);
+
         const response = await axios.get(downloadUrl, {
           responseType: 'blob',
           headers: {
@@ -161,7 +160,7 @@ export function CoverLetterPreview() {
         const blob = new Blob([response.data], { type: 'application/pdf' });
         setPdfBlob(blob);
         const url = URL.createObjectURL(blob);
-        
+
         // For mobile devices, especially iOS, we need to handle PDF viewing differently
         if (isMobile) {
           setPdfUrl(url);
@@ -170,7 +169,7 @@ export function CoverLetterPreview() {
         }
       } catch (error: any) {
         console.error('Error downloading cover letter:', error);
-        
+
         // Try to read the error response if it's a blob
         if (error.response?.data instanceof Blob) {
           const errorData = await error.response.data.text();
@@ -178,22 +177,22 @@ export function CoverLetterPreview() {
         } else {
           console.error('Error response:', error.response?.data);
         }
-        
-        let errorMessage = language === 'ar' 
-          ? 'حدث خطأ في تحميل خطاب التغطية' 
+
+        let errorMessage = language === 'ar'
+          ? 'حدث خطأ في تحميل خطاب التغطية'
           : 'Error loading cover letter';
-        
+
         if (error.response?.status === 404) {
-          errorMessage = language === 'ar' 
-            ? 'لم يتم العثور على ملف خطاب التغطية' 
+          errorMessage = language === 'ar'
+            ? 'لم يتم العثور على ملف خطاب التغطية'
             : 'Cover letter file not found';
         } else if (error.response?.status === 422) {
-          errorMessage = language === 'ar' 
-            ? 'بيانات غير صالحة لخطاب التغطية' 
+          errorMessage = language === 'ar'
+            ? 'بيانات غير صالحة لخطاب التغطية'
             : 'Invalid cover letter data';
         } else if (error.message === 'Server did not return a PDF') {
-          errorMessage = language === 'ar' 
-            ? 'الملف الذي تم استلامه ليس ملف PDF صالحاً' 
+          errorMessage = language === 'ar'
+            ? 'الملف الذي تم استلامه ليس ملف PDF صالحاً'
             : 'The received file is not a valid PDF';
         }
         setError(errorMessage);
@@ -290,11 +289,10 @@ export function CoverLetterPreview() {
   };
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${
-        isDarkMode
+      className={`min-h-screen transition-all duration-300 ${isDarkMode
           ? 'bg-gradient-to-br from-black via-gray-900 to-black text-white'
           : 'bg-gradient-to-br from-white via-gray-50 to-white text-black'
-      }`}
+        }`}
     >
       <ScrollToTop />
       <Header
@@ -307,9 +305,8 @@ export function CoverLetterPreview() {
         {/* Payment Form Modal */}
         {showPaymentForm && (
           <div className="fixed inset-0 z-50  flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-            <div className={`relative w-full max-w-md p-6 rounded-xl ${
-              isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
-            }`}>
+            <div className={`relative w-full max-w-md p-6 rounded-xl ${isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
+              }`}>
               <button
                 onClick={() => setShowPaymentForm(false)}
                 className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -322,16 +319,15 @@ export function CoverLetterPreview() {
             </div>
           </div>
         )}
-        
+
         {/* Back Button */}
         <div className="mb-6">
           <button
             onClick={handleBackClick}
-            className={`group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-              isDarkMode
+            className={`group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${isDarkMode
                 ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600'
                 : 'bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow'
-            }`}
+              }`}
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span className="font-medium">{String(language) === 'ar' ? 'العودة' : 'Back'}</span>
@@ -354,9 +350,8 @@ export function CoverLetterPreview() {
         {isLoading && (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <div
-              className={`relative p-6 md:p-8 rounded-2xl ${
-                isDarkMode ? 'bg-gray-900/50 border border-gray-800' : 'bg-white/80 border border-gray-200 shadow-xl'
-              }`}
+              className={`relative p-6 md:p-8 rounded-2xl ${isDarkMode ? 'bg-gray-900/50 border border-gray-800' : 'bg-white/80 border border-gray-200 shadow-xl'
+                }`}
             >
               <div className="flex flex-col items-center">
                 <div className="relative">
@@ -384,12 +379,11 @@ export function CoverLetterPreview() {
         {error && !isLoading && (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <div
-              className={`relative p-6 md:p-8 rounded-2xl text-center ${
-                isDarkMode ? 'bg-red-900/20 border border-red-800' : 'bg-red-50 border border-red-200'
-              }`}
+              className={`relative p-6 md:p-8 rounded-2xl text-center ${isDarkMode ? 'bg-red-900/20 border border-red-800' : 'bg-red-50 border border-red-200'
+                }`}
             >
-              
-              
+
+
               <AlertCircle className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-red-500" />
               <h3 className="text-lg md:text-xl font-semibold mb-2 text-red-600">
                 {String(language) === 'ar' ? 'حدث خطأ' : 'Error Occurred'}
@@ -406,11 +400,10 @@ export function CoverLetterPreview() {
                 </button>
                 <button
                   onClick={handleBackClick}
-                  className={`px-6 py-2 rounded-lg transition-colors ${
-                    isDarkMode 
-                      ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                  className={`px-6 py-2 rounded-lg transition-colors ${isDarkMode
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white'
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  }`}
+                    }`}
                 >
                   {String(language) === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
                 </button>
@@ -422,11 +415,10 @@ export function CoverLetterPreview() {
         {pdfUrl && !isLoading && !error && (
           <div className="w-full max-w-xl mx-auto">
             <div
-              className={`rounded-2xl overflow-hidden ${
-                isDarkMode
+              className={`rounded-2xl overflow-hidden ${isDarkMode
                   ? 'bg-gray-900/50 border border-gray-800'
                   : 'bg-white border border-gray-200 shadow-lg'
-              }`}
+                }`}
             >
               <div className="p-4 md:p-6 pb-4">
                 <div className="flex sm:flex-row flex-col justify-between items-center w-full gap-4 mb-4">
@@ -446,11 +438,10 @@ export function CoverLetterPreview() {
                 </div>
               </div>
               <div className="px-4 md:px-6 pb-4 md:pb-6">
-                <div className={`relative w-full p-8 rounded-xl border-2 text-center transition-all duration-300 ${
-                  isDarkMode
+                <div className={`relative w-full p-8 rounded-xl border-2 text-center transition-all duration-300 ${isDarkMode
                     ? 'border-gray-700 hover:border-gray-600 bg-gray-800/50'
                     : 'border-gray-200 hover:border-gray-300 bg-gray-50'
-                }`}>
+                  }`}>
                   {mobileImageLoading ? (
                     <div className="flex flex-col items-center justify-center min-h-[200px]">
                       <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
@@ -468,14 +459,14 @@ export function CoverLetterPreview() {
                             className="w-full h-auto max-h-[90vh] object-fill rounded-lg cursor-pointer"
                             onClick={() => setFullScreenImg(imgUrl)}
                           />
-                         
+
                           <div className="absolute   flex-col inset-0 bg-black bg-opacity-70 transition-opacity duration-300 rounded-lg flex items-center justify-center">
-                          <MdOutlineRemoveRedEye  className='text-white' size={40} />
+                            <MdOutlineRemoveRedEye className='text-white' size={40} />
                             <span className="text-white text-lg font-semibold">
                               {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlock The Content'}
                             </span>
                           </div>
-                        
+
                         </div>
                       ))}
                     </div>

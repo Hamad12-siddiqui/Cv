@@ -23,12 +23,12 @@ export const LinkedInPreview: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
- const { isDarkMode, toggleDarkMode } = useTheme()
+  const { isDarkMode, toggleDarkMode } = useTheme()
   const { language, toggleLanguage } = useLanguage()
   const linkedInData = location.state as LinkedInData & { resume_id?: number };
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [hasPaid, setHasPaid] = useState(false);
-  
+
 
   const handleBack = () => {
     navigate('/');
@@ -47,7 +47,6 @@ export const LinkedInPreview: React.FC = () => {
     // Call successful resume API if resume_id is present
     if (linkedInData.resume_id) {
       try {
-        console.log('Calling successful resume API with resume_id:', linkedInData.resume_id);
         const resp = await axios.post(
           'https://admin.cvaluepro.com/dashboard/resumes/successful',
           { resume_id: linkedInData.resume_id },
@@ -58,7 +57,6 @@ export const LinkedInPreview: React.FC = () => {
             }
           }
         );
-        console.log('Successful resume API response:', resp.data);
       } catch (err) {
         console.error('Error calling successful resume API:', err);
       }
@@ -68,7 +66,6 @@ export const LinkedInPreview: React.FC = () => {
     try {
       const amount = 199; // Replace with dynamic value if available from PaymentForm or /create-charge
       const tax = +(amount * 0.029).toFixed(2); // 2.9% tax
-      console.log('Calling sales API with:', { amount, tax });
       const salesResp = await axios.post(
         'https://admin.cvaluepro.com/dashboard/sales/',
         { amount, tax },
@@ -79,7 +76,6 @@ export const LinkedInPreview: React.FC = () => {
           }
         }
       );
-      console.log('Sales API response:', salesResp.data);
     } catch (err) {
       console.error('Error calling sales API:', err);
     }
@@ -116,12 +112,12 @@ export const LinkedInPreview: React.FC = () => {
   };
 
   return (
-    <div 
+    <div
       className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}
       onCopy={preventCopy}
       onCut={preventCopy}
       onContextMenu={preventCopy}
-      style={{ 
+      style={{
         userSelect: hasPaid ? 'text' : 'none',
         WebkitUserSelect: hasPaid ? 'text' : 'none',
         MozUserSelect: hasPaid ? 'text' : 'none',
@@ -140,29 +136,28 @@ export const LinkedInPreview: React.FC = () => {
           <div className="mb-8 flex justify-between ">
             <button
               onClick={handleBack}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
-                isDarkMode 
-                  ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${isDarkMode
+                  ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700'
                   : 'bg-gray-100 hover:bg-gray-200 text-black border border-gray-200'
-              }`}
+                }`}
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}</span>
             </button>
-            <button 
+            <button
               onClick={handleDownload}
               className={`border px-3 py-2 rounded-lg bg-black text-white transition-colors ${hasPaid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={hasPaid}
             >
-                {hasPaid
-                  ? (language === 'ar' ? 'تم الدفع' : 'Paid')
-                  : (language === 'ar' ? 'تحميل' : 'Copy Text')}
+              {hasPaid
+                ? (language === 'ar' ? 'تم الدفع' : 'Paid')
+                : (language === 'ar' ? 'تحميل' : 'Copy Text')}
             </button>
           </div>
           {/* Title */}
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold mb-6 flex items-center justify-center gap-3">
-              
+
               {language === 'ar' ? 'تحسين الملف الشخصي على لينكد إن' : 'LinkedIn Profile Optimization'}
             </h1>
           </div>
@@ -177,11 +172,11 @@ export const LinkedInPreview: React.FC = () => {
                 >
                   <X className="w-6 h-6" />
                 </button>
-<PaymentForm 
-  onSuccess={handlePaymentSuccess}
-  completePaymentButtonText="Pay Now 199 SAR"
-  amount={199}
-/>              </div>
+                <PaymentForm
+                  onSuccess={handlePaymentSuccess}
+                  completePaymentButtonText="Pay Now 199 SAR"
+                  amount={199}
+                />              </div>
             </div>
           )}
 
@@ -196,11 +191,10 @@ export const LinkedInPreview: React.FC = () => {
                 {hasPaid && (
                   <button
                     onClick={() => handleCopy(linkedInData.tagLine)}
-                    className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      isDarkMode 
-                        ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                    className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${isDarkMode
+                        ? 'hover:bg-gray-800 text-gray-300 hover:text-white'
                         : 'hover:bg-gray-100 text-gray-600 hover:text-black'
-                    }`}
+                      }`}
                     title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
                   >
                     <Copy className="w-4 h-4" />
@@ -208,12 +202,12 @@ export const LinkedInPreview: React.FC = () => {
                   </button>
                 )}
               </div>
-              <p 
+              <p
                 className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                 onCopy={preventCopy}
                 onCut={preventCopy}
                 onContextMenu={preventCopy}
-                style={{ 
+                style={{
                   userSelect: hasPaid ? 'text' : 'none',
                   WebkitUserSelect: hasPaid ? 'text' : 'none',
                   MozUserSelect: hasPaid ? 'text' : 'none',
@@ -238,11 +232,10 @@ export const LinkedInPreview: React.FC = () => {
                 {hasPaid && (
                   <button
                     onClick={() => handleCopy(linkedInData.profileSummary)}
-                    className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      isDarkMode 
-                        ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                    className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${isDarkMode
+                        ? 'hover:bg-gray-800 text-gray-300 hover:text-white'
                         : 'hover:bg-gray-100 text-gray-600 hover:text-black'
-                    }`}
+                      }`}
                     title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
                   >
                     <Copy className="w-4 h-4" />
@@ -250,12 +243,12 @@ export const LinkedInPreview: React.FC = () => {
                   </button>
                 )}
               </div>
-              <p 
+              <p
                 className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} whitespace-pre-wrap`}
                 onCopy={preventCopy}
                 onCut={preventCopy}
                 onContextMenu={preventCopy}
-                style={{ 
+                style={{
                   userSelect: hasPaid ? 'text' : 'none',
                   WebkitUserSelect: hasPaid ? 'text' : 'none',
                   MozUserSelect: hasPaid ? 'text' : 'none',
@@ -281,11 +274,10 @@ export const LinkedInPreview: React.FC = () => {
                   {hasPaid && (
                     <button
                       onClick={() => handleCopy(linkedInData.experiences!.join('\n'))}
-                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
-                        isDarkMode 
-                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${isDarkMode
+                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white'
                           : 'hover:bg-gray-100 text-gray-600 hover:text-black'
-                      }`}
+                        }`}
                       title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
                     >
                       <Copy className="w-4 h-4" />
@@ -293,12 +285,12 @@ export const LinkedInPreview: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <ul 
+                <ul
                   className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} list-disc list-inside space-y-2`}
                   onCopy={preventCopy}
                   onCut={preventCopy}
                   onContextMenu={preventCopy}
-                  style={{ 
+                  style={{
                     userSelect: hasPaid ? 'text' : 'none',
                     WebkitUserSelect: hasPaid ? 'text' : 'none',
                     MozUserSelect: hasPaid ? 'text' : 'none',
@@ -327,11 +319,10 @@ export const LinkedInPreview: React.FC = () => {
                   {hasPaid && (
                     <button
                       onClick={() => handleCopy(linkedInData.certifications!.join('\n'))}
-                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
-                        isDarkMode 
-                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white' 
+                      className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${isDarkMode
+                          ? 'hover:bg-gray-800 text-gray-300 hover:text-white'
                           : 'hover:bg-gray-100 text-gray-600 hover:text-black'
-                      }`}
+                        }`}
                       title={language === 'ar' ? 'نسخ النص' : 'Copy text'}
                     >
                       <Copy className="w-4 h-4" />
@@ -339,12 +330,12 @@ export const LinkedInPreview: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <ul 
+                <ul
                   className={`relative p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} list-disc list-inside space-y-2`}
                   onCopy={preventCopy}
                   onCut={preventCopy}
                   onContextMenu={preventCopy}
-                  style={{ 
+                  style={{
                     userSelect: hasPaid ? 'text' : 'none',
                     WebkitUserSelect: hasPaid ? 'text' : 'none',
                     MozUserSelect: hasPaid ? 'text' : 'none',

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 interface CardAddress {
   country: string;
@@ -104,12 +104,14 @@ interface CustomerData {
   phone_number?: string;
 }
 
-const API_BASE = 'https://admin.cvaluepro.com/payments';
+const API_BASE = "https://admin.cvaluepro.com/payments";
 
-export const createToken = async (formData: TokenFormData): Promise<TokenResponse> => {
+export const createToken = async (
+  formData: TokenFormData
+): Promise<TokenResponse> => {
   const payload: TokenPayload = {
     card: {
-      number: formData.number?.replace(/\s/g, '') || "0",  // Must be string to avoid precision loss
+      number: formData.number?.replace(/\s/g, "") || "0", // Must be string to avoid precision loss
       exp_month: parseInt(formData.exp_month || "0", 10),
       exp_year: parseInt(formData.exp_year || "0", 10),
       cvc: parseInt(formData.cvc || "0", 10),
@@ -119,15 +121,12 @@ export const createToken = async (formData: TokenFormData): Promise<TokenRespons
         line1: formData.line1 || "",
         city: formData.city || "",
         street: formData.street || "",
-        avenue: formData.avenue || ""
-      }
+        avenue: formData.avenue || "",
+      },
     },
-    client_ip: formData.client_ip || "127.0.0.1"
+    client_ip: formData.client_ip || "127.0.0.1",
   };
 
-  console.debug("Creating token with payload:", payload);
-  const response = await axios.post(`${API_BASE}/create-token`, payload);
-  console.debug("Token response:", response.data);
   return response.data;
 };
 
@@ -146,11 +145,11 @@ export const createCharge = async (
     metadata: {},
     receipt: {
       email: true,
-      sms: true
+      sms: true,
     },
     reference: {
       transaction: `txn_${Date.now()}`,
-      order: `order_${Date.now()}`
+      order: `order_${Date.now()}`,
     },
     customer: {
       first_name: customerData.first_name || "John",
@@ -159,25 +158,22 @@ export const createCharge = async (
       email: customerData.email || "john@example.com",
       phone: {
         country_code: parseInt(customerData.phone_country_code || "1"),
-        number: parseInt(customerData.phone_number || "1234567890")
-      }
+        number: parseInt(customerData.phone_number || "1234567890"),
+      },
     },
     merchant: {
-      id: "TS03A2220251556Hb450108197"
+      id: "TS03A2220251556Hb450108197",
     },
     source: {
-      id: tokenId
+      id: tokenId,
     },
     post: {
-      url: "https://example.com/webhook"
+      url: "https://example.com/webhook",
     },
     redirect: {
-      url: "https://example.com/success"
-    }
+      url: "https://example.com/success",
+    },
   };
 
-  console.debug("Creating charge with payload:", payload);
-  const response = await axios.post(`${API_BASE}/create-charge`, payload);
-  console.debug("Charge response:", response.data);
   return response.data;
 };

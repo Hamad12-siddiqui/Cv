@@ -15,10 +15,6 @@ import { useTheme } from './hooks/useTheme';
 const ThemeLanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isDarkMode } = useTheme();
 
-  // Apply theme class to body for additional styling if needed
-  React.useEffect(() => {
-    document.body.className = isDarkMode ? 'dark-theme' : 'light-theme';
-  }, [isDarkMode]);
 
   return <>{children}</>;
 };

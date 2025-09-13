@@ -40,9 +40,9 @@
 /* Global Styles */
 * {
   transition: background-color var(--transition-duration) ease,
-              color var(--transition-duration) ease,
-              border-color var(--transition-duration) ease,
-              box-shadow var(--transition-duration) ease;
+    color var(--transition-duration) ease,
+    border-color var(--transition-duration) ease,
+    box-shadow var(--transition-duration) ease;
 }
 
 /* Language-specific font loading */
@@ -80,5 +80,6 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
+
 
 
