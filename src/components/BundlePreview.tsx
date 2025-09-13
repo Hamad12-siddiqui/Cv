@@ -540,8 +540,37 @@ export const BundlePreview: React.FC = () => {
     setShowPaymentForm(true);
   };
 
-  const handleBack = () => {
-    navigate('/');
+  const handleBack = async () => {
+    try {
+      // Get authentication token
+      const authToken = await getAuthToken();
+
+      // Delete session for resume if available
+      if (bundleState?.resume?.sessionId) {
+        await axios.delete(
+          `https://resume.cvaluepro.com/resume/delete-session/?session_id=${bundleState.resume.sessionId}`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            }
+          }
+        );
+        console.log(`Resume session ${bundleState.resume.sessionId} deleted successfully`);
+      }
+
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      // Don't prevent navigation if session deletion fails
+      toast.error(
+        language === 'ar'
+          ? 'حدث خطأ أثناء حذف الجلسة، لكن سيتم الانتقال للصفحة الرئيسية'
+          : 'Error deleting session, but proceeding to home page'
+      );
+    } finally {
+      // Navigate back regardless of API call success/failure
+      navigate('/');
+    }
   };
 
   return (
