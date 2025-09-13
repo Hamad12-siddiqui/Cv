@@ -14,18 +14,18 @@ import { useTheme } from './hooks/useTheme';
 // Theme and Language Context Provider Component
 const ThemeLanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isDarkMode } = useTheme();
-  
+
   // Apply theme class to body for additional styling if needed
   React.useEffect(() => {
     document.body.className = isDarkMode ? 'dark-theme' : 'light-theme';
   }, [isDarkMode]);
-  
+
   return <>{children}</>;
 };
 
 function App() {
   const { isDarkMode } = useTheme();
-  
+
   return (
     <ThemeLanguageProvider>
       <Router>

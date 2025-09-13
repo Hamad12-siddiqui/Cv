@@ -30,7 +30,7 @@ export const SpecialOfferSection: React.FC<SpecialOfferSectionProps> = ({
             <span className="text-4xl font-bold">{content.discountedPrice}</span>
           </div>
           <p className="text-green-500 font-semibold mb-8">{content.savings}</p>
-          <button 
+          <button
             onClick={handleBundleOrder}
             className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 ${isDarkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
           >

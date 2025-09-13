@@ -501,6 +501,7 @@ export const OrderPage: React.FC = () => {
               sessionId: resumeResponse.session_id,
               classicResumeUrl: resumeResponse.classic_resume_url,
               modernResumeUrl: resumeResponse.modern_resume_url,
+              dummyModernResumeUrl: resumeResponse.dummy_modern_resume_url,
               email: resumeResponse.email,
               phone: resumeResponse.phone,
               previewImages: resumeImagesResponse.data
