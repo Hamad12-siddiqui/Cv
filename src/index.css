@@ -1,4 +1,3 @@
-
 @import "./fonts.css";
 @tailwind base;
 @tailwind components;
@@ -47,17 +46,16 @@
 
 /* Language-specific font loading */
 
-.lang-ar, 
+.lang-ar,
 .font-riwaya {
   /* font-family: '29LT Riwaya', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; */
-font-family: '29LT Riwaya';
+  font-family: "29LT Riwaya";
 }
-
 
 .lang-en,
 .font-hagrid {
   /* font-family: 'Hagrid', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; */
-font-family: 'Hagrid';
+  font-family: "Hagrid";
 }
 
 /* Ensure LTR layout is maintained */
@@ -80,6 +78,3 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
-
-
-
