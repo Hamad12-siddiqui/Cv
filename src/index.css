@@ -78,3 +78,38 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
+
+/* Scroll area utilities */
+.scroll-area {
+  scrollbar-gutter: stable both-edges;
+  scroll-behavior: smooth;
+}
+
+/* Thin, elegant scrollbar (WebKit) */
+.scroll-area::-webkit-scrollbar {
+  width: 10px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.35); /* slate-500/35 */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.dark .scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.45); /* slate-400/45 for dark */
+}
+.scroll-area:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.55);
+}
+.dark .scroll-area:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.65);
+}
+
+/* Firefox */
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}

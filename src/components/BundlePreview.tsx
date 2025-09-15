@@ -556,7 +556,7 @@ export const BundlePreview: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-8">
                                     {/* Classic Resume Preview */}
                                     <div>
-                                        <h4 className="text-2xl text-center font-medium mb-4">
+                                        <h4 className="text-3xl text-center  mb-4 font-bold">
                                             {language === 'ar' ? 'النموذج الكلاسيكي' : 'Classic Template'}
                                         </h4>
                                         <div className="grid grid-cols-1 gap-4">
@@ -593,7 +593,7 @@ export const BundlePreview: React.FC = () => {
 
                                     {/* Modern Resume Preview */}
                                     <div>
-                                        <h4 className="text-2xl text-center font-medium mb-4">
+                                        <h4 className="text-3xl text-center font-bold mb-4">
                                             {language === 'ar' ? 'النموذج الحديث' : 'Modern Template'}
                                         </h4>
                                         <div className="grid grid-cols-1 gap-4">
@@ -631,9 +631,10 @@ export const BundlePreview: React.FC = () => {
                                     {/* Dummy Modern Resume Preview */}
                                     {bundleState.resume.dummyModernResumeUrl && (
                                         <div>
-                                            <h4 className="text-2xl text-center font-medium mb-4">
-                                                {language === 'ar' ? 'النموذج العصري التجريبي' : 'Dummy Modern Template'}
-                                            </h4>
+                                           <h4 className="text-3xl text-center font-bold mb-4">
+  {language === 'ar' ? 'قالب مميز' : 'Premium Template'}
+</h4>
+
                                             <div className="grid grid-cols-1 gap-4">
                                                 {(() => {
                                                     const dummyImages = bundleState.resume.previewImages[bundleState.resume.dummyModernResumeUrl] || [];
