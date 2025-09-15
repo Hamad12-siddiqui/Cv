@@ -19,15 +19,6 @@ interface ResumePreviewImages {
 }
 
 interface BundleState {
-    coverLetter: {
-        session_id: string;
-        cover_letter_filename: string;
-        email: string;
-        phone: string;
-        previewImages: {
-            images: string[];
-        };
-    };
     linkedin: {
         tagLine: string;
         profileSummary: string;
@@ -62,7 +53,7 @@ export const BundlePreview: React.FC = () => {
     const { language, toggleLanguage } = useLanguage();
     const state = location.state as BundleState;
     const [showPaymentForm, setShowPaymentForm] = useState(false);
-    const [currentPreview, setCurrentPreview] = useState<'resume' | 'linkedin' | 'cover-letter'>('resume');
+    const [currentPreview, setCurrentPreview] = useState<'resume' | 'linkedin'>('resume');
     const [isPaid, setIsPaid] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
 
@@ -76,7 +67,7 @@ export const BundlePreview: React.FC = () => {
     // Ensure we have all the required data
     React.useEffect(() => {
 
-        if (!state || !state.coverLetter || !state.linkedin) {
+        if (!state || !state.linkedin) {
             toast.error(
                 language === 'ar'
                     ? 'لم يتم العثور على معلومات الحزمة'
@@ -362,20 +353,7 @@ export const BundlePreview: React.FC = () => {
                     }
                 );
 
-                // Validate and fetch cover letter images
-                const coverLetterImagesResponse = await axios.post(
-                    `${API_BASE_URL}/cover/images`,
-                    {
-                        session_id: bundleState.coverLetter.session_id,
-                        filename: bundleState.coverLetter.cover_letter_filename
-                    },
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        }
-                    }
-                );
+                // Cover letter removed: no cover images fetch
 
                 // Validate resume images response
                 if (!resumeImagesResponse.data ||
@@ -385,10 +363,7 @@ export const BundlePreview: React.FC = () => {
                     throw new Error('Resume preview images not available');
                 }
 
-                // Validate cover letter images response
-                if (!coverLetterImagesResponse.data.images) {
-                    throw new Error('Cover letter preview images not available');
-                }
+                // Cover letter removed: no cover images validation
 
                 // Download classic resume
                 const classicResumeResponse = await axios.get(
@@ -435,19 +410,7 @@ export const BundlePreview: React.FC = () => {
                     dummyModernResumeUrl = URL.createObjectURL(dummyModernResumeBlob);
                 }
 
-                // Download cover letter
-                const coverLetterResponse = await axios.get(
-                    `${API_BASE_URL}/cover/download?session_id=${bundleState.coverLetter.session_id}&filename=${bundleState.coverLetter.cover_letter_filename}`,
-                    {
-                        responseType: 'blob',
-                        headers: {
-                            'Accept': 'application/pdf',
-                            'ngrok-skip-browser-warning': 'true'
-                        }
-                    }
-                );
-                const coverLetterBlob = new Blob([coverLetterResponse.data], { type: 'application/pdf' });
-                const coverLetterUrl = URL.createObjectURL(coverLetterBlob);
+                // Cover letter removed: no cover download
 
                 // Create download links and trigger downloads
                 const downloadFile = (url: string, filename: string) => {
@@ -467,41 +430,21 @@ export const BundlePreview: React.FC = () => {
                         // Download dummy modern resume if available
                         if (dummyModernResumeUrl) {
                             downloadFile(dummyModernResumeUrl, 'dummy-modern-resume.pdf');
-                            setTimeout(() => {
-                                downloadFile(coverLetterUrl, 'cover-letter.pdf');
-                                // Copy LinkedIn content to clipboard
-                                toast.success(
-                                    language === 'ar'
-                                        ? 'تم تحميل جميع الملفات بنجاح'
-                                        : 'All files downloaded successfully'
-                                );
-
-                                // Cleanup URLs
-                                URL.revokeObjectURL(classicResumeUrl);
-                                URL.revokeObjectURL(modernResumeUrl);
-                                URL.revokeObjectURL(dummyModernResumeUrl);
-                                URL.revokeObjectURL(coverLetterUrl);
-
-                                // Set payment status
-                                setIsPaid(true);
-                            }, 1000);
-                        } else {
-                            downloadFile(coverLetterUrl, 'cover-letter.pdf');
-                            // Copy LinkedIn content to clipboard
-                            toast.success(
-                                language === 'ar'
-                                    ? 'تم تحميل جميع الملفات بنجاح'
-                                    : 'All files downloaded successfully'
-                            );
-
-                            // Cleanup URLs
-                            URL.revokeObjectURL(classicResumeUrl);
-                            URL.revokeObjectURL(modernResumeUrl);
-                            URL.revokeObjectURL(coverLetterUrl);
-
-                            // Set payment status
-                            setIsPaid(true);
                         }
+
+                        toast.success(
+                            language === 'ar'
+                                ? 'تم تحميل جميع الملفات بنجاح'
+                                : 'All files downloaded successfully'
+                        );
+
+                        // Cleanup URLs
+                        URL.revokeObjectURL(classicResumeUrl);
+                        URL.revokeObjectURL(modernResumeUrl);
+                        if (dummyModernResumeUrl) URL.revokeObjectURL(dummyModernResumeUrl);
+
+                        // Set payment status
+                        setIsPaid(true);
                     }, 1000);
                 }, 1000);
 
@@ -599,17 +542,7 @@ export const BundlePreview: React.FC = () => {
                     >
                         {language === 'ar' ? 'لينكد إن' : 'LinkedIn'}
                     </button>
-                    <button
-                        onClick={() => setCurrentPreview('cover-letter')}
-                        className={`px-4 py-2 rounded-lg transition-colors ${currentPreview === 'cover-letter'
-                            ? 'bg-black text-white'
-                            : isDarkMode
-                                ? 'bg-gray-800 text-gray-300'
-                                : 'bg-gray-200 text-gray-700'
-                            }`}
-                    >
-                        {language === 'ar' ? 'خطاب التغطية' : 'Cover Letter'}
-                    </button>
+
                 </div>
 
                 {/* Preview Content */}
@@ -862,45 +795,7 @@ export const BundlePreview: React.FC = () => {
                         </div>
                     )}
 
-                    {currentPreview === 'cover-letter' && bundleState?.coverLetter && (
-                        <div className="space-y-6">
-                            <div className={`p-6 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                                <h3 className="text-xl font-semibold mb-4">
-                                    {language === 'ar' ? 'معاينة خطاب التغطية' : 'Cover Letter Preview'}
-                                </h3>
-                                <div className="grid grid-cols-1 gap-4 boder-4">
-                                    {bundleState.coverLetter.previewImages.images.map((image: string, index: number) => (
-                                        <div key={`cover-${index}`} className="relative rounded-lg overflow-hidden shadow-lg">
-                                            <div className={`${!isPaid ? 'select-none' : ''}`}>
-                                                <img
-                                                    src={image}
-                                                    alt={`Cover letter page ${index + 1}`}
-                                                    className="w-full h-auto"
-                                                    style={{
-                                                        maxHeight: '800px',
-                                                        objectFit: 'contain',
-                                                        filter: !isPaid ? 'blur(0.7px)' : 'none'
-                                                    }}
-                                                    onContextMenu={(e) => !isPaid && e.preventDefault()}
-                                                />
-                                            </div>
-                                            <div className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white px-2 py-1 text-sm">
-                                                {language === 'ar' ? `صفحة ${index + 1}` : `Page ${index + 1}`}
-                                            </div>
-                                            {!isPaid && (
-                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black  bg-opacity-40">
-                                                    <MdOutlineRemoveRedEye size={36} className='text-white' />
-                                                    <p className="text-white text-lg font-semibold">
-                                                        {language === 'ar' ? 'ادفع لفتح المحتوى' : 'Pay To Unlocked Content'}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Get Bundle Offer Button */}

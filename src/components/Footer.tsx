@@ -17,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ isDarkMode, language }) => {
           <span className="text-xl font-bold">Value</span>
         </div>
         <p className="opacity-80">
-          {language === 'ar' ? 'تمكين المهن، ملف واحد في كل مرة.' : 'Empowering careers, one profile at a time'}
+          {language === 'ar' ? 'سيرة احترافية، حضور أقوى' : 'Empowering careers, one profile at a time'}
         </p>
       </div>
     </footer>
