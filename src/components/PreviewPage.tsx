@@ -152,7 +152,7 @@ export const PreviewPage: React.FC = () => {
     const renderPreviewImages = (type: 'classic' | 'modern') => {
         if (previewImageLoading) {
             return (
-                <div className="flex flex-col items-center justify-center py-10">
+                <div className="flex flex-col  items-center justify-center min-h-[160px]">
                     <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}></p>
                 </div>
@@ -174,7 +174,7 @@ export const PreviewPage: React.FC = () => {
             return (
                 <div className="flex flex-col gap-4 items-center justify-center py-4">
                     {previewImages[type].map((img: string, idx: number) => (
-                        <div key={idx} className="relative w-full">
+                        <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
                             <img
                                 src={img}
                                 alt="Resume Preview"
@@ -410,7 +410,7 @@ export const PreviewPage: React.FC = () => {
                 <div className="hidden lg:grid lg:grid-cols-3 gap-4   w-full mx-auto">
                     {/* Classic Resume Images */}
                     <div
-                        className={`group relative rounded-2xl transition-all duration-300 ${isDarkMode
+                        className={`group relative rounded-2xl h-[90vh] transition-all duration-300 ${isDarkMode
                             ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                             : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
                             }`}
@@ -439,17 +439,17 @@ export const PreviewPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="px-6 pb-6">
-                            <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                                 {/* Show loading, error, or images for classic */}
                                 {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                                         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                             {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
                                         </p>
                                     </div>
                                 ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                                         <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
                                         <button
@@ -464,13 +464,13 @@ export const PreviewPage: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto max-h-screen">
+                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh]">
                                         {previewImages.classic.map((img, idx) => (
-                                            <div key={idx} className="relative w-full break-after-page">
+                                            <div key={idx} className="relative w-full h-full break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
-                                                    className="w-full h-auto object-contain rounded cursor-zoom-in"
+                                                    className="w-full h-full object-contain rounded cursor-zoom-in"
                                                     onClick={() => setFullScreenImg(img)}
                                                 />
                                                 <div className="absolute inset-0 bg-black opacity-50  z-40 rounded flex flex-col items-center justify-center w-full h-full">
@@ -490,7 +490,7 @@ export const PreviewPage: React.FC = () => {
                     </div>
                     {/* Modern Resume Images */}
                     <div
-                        className={`group relative rounded-2xl overflow-hidden overflow-y-auto transition-all duration-300 ${isDarkMode
+                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
                             ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                             : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
                             }`}
@@ -517,17 +517,17 @@ export const PreviewPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="px-6 pb-6">
-                            <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                                 {/* Show loading, error, or images for modern */}
                                 {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                                         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                             {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
                                         </p>
                                     </div>
                                 ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                                         <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
                                         <button
@@ -544,7 +544,7 @@ export const PreviewPage: React.FC = () => {
                                 ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
                                     <div className="flex flex-col gap-8 items-center justify-center ">
                                         {previewImages.modern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full break-after-page">
+                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
@@ -569,7 +569,7 @@ export const PreviewPage: React.FC = () => {
 
                     {/* Dummy Modern Resume Images */}
                     <div
-                        className={`group relative rounded-2xl overflow-hidden overflow-y-auto transition-all duration-300 ${isDarkMode
+                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
                             ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                             : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
                             }`}
@@ -599,17 +599,17 @@ export const PreviewPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="px-6 pb-6">
-                            <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                                 {/* Show loading, error, or images for dummy modern */}
                                 {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                                         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                             {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
                                         </p>
                                     </div>
                                 ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                                         <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
                                         <button
@@ -626,7 +626,7 @@ export const PreviewPage: React.FC = () => {
                                 ) : previewImages && previewImages.dummyModern && previewImages.dummyModern.length > 0 ? (
                                     <div className="flex flex-col gap-8 items-center justify-center ">
                                         {previewImages.dummyModern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full break-after-page">
+                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
@@ -729,17 +729,17 @@ export const PreviewPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="px-6 pb-6">
-                            <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                            <div className={`w-full min-h-[30vh] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                                 {/* Show loading, error, or images */}
                                 {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                                         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                             {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
                                         </p>
                                     </div>
                                 ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
                                         <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                                         <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
                                         <button
@@ -756,11 +756,11 @@ export const PreviewPage: React.FC = () => {
                                 ) : getPreviewImagesFor(activePreview).length > 0 ? (
                                     <div className="flex flex-col gap-4 items-center justify-center py-4">
                                         {getPreviewImagesFor(activePreview).map((img: string, idx: number) => (
-                                            <div key={idx} className="relative w-full">
+                                            <div key={idx} className="relative w-full h-full">
                                                 <img
                                                     src={img}
                                                     alt="Resume Preview"
-                                                    className="w-full h-auto object-contain rounded cursor-zoom-in"
+                                                    className="w-full h-full object-contain rounded cursor-zoom-in"
                                                     onClick={() => setFullScreenImg(img)}
                                                 />
                                                 <div className="absolute inset-0  bg-black opacity-50 rounded flex flex-col items-center justify-center w-full h-full">
