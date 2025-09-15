@@ -152,14 +152,14 @@ export const PreviewPage: React.FC = () => {
     const renderPreviewImages = (type: 'classic' | 'modern') => {
         if (previewImageLoading) {
             return (
-                <div className="flex flex-col  items-center justify-center min-h-[160px]">
+                <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}></p>
                 </div>
             );
         } else if (previewImageError) {
             return (
-                <div className="flex flex-col items-center justify-center min-h-[200px]">
+                <div className="flex flex-col items-center justify-center py-12">
                     <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                     <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}></p>
                     <button
@@ -174,7 +174,7 @@ export const PreviewPage: React.FC = () => {
             return (
                 <div className="flex flex-col gap-4 items-center justify-center py-4">
                     {previewImages[type].map((img: string, idx: number) => (
-                        <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh]">
+                        <div key={idx} className="relative w-full">
                             <img
                                 src={img}
                                 alt="Resume Preview"
@@ -182,7 +182,7 @@ export const PreviewPage: React.FC = () => {
                                 onClick={() => setFullScreenImg(img)}
                             />
 
-                            <div className="absolute inset-0 flex-col bg-black opacity-50 rounded flex items-center justify-center">
+                            <div className="absolute inset-0 flex-col bg-black opacity-50 rounded  flex items-center justify-center">
                                 <MdOutlineRemoveRedEye className="text-white " size={36} />
                                 <span className="text-white text-lg font-bold">Locked Content</span>
 
@@ -204,6 +204,41 @@ export const PreviewPage: React.FC = () => {
     // State for payment form visibility
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [selectedResumeType, setSelectedResumeType] = useState<'classic' | 'modern' | 'dummy-modern'>('classic');
+
+    // Unified template config to map UI on desktop and mobile
+    const templates: Array<{
+        type: 'classic' | 'modern' | 'dummy-modern'
+        titleEn: string
+        titleAr: string
+        descEn: string
+        descAr: string
+        Icon: React.ComponentType<{ className?: string }>
+    }> = [
+            {
+                type: 'classic',
+                titleEn: 'Classic Template',
+                titleAr: 'النموذج الكلاسيكي',
+                descEn: 'Clean and professional design for traditional roles',
+                descAr: 'تصميم أنيق ومهني للوظائف التقليدية',
+                Icon: FileText,
+            },
+            {
+                type: 'modern',
+                titleEn: 'Modern Template',
+                titleAr: 'النموذج العصري',
+                descEn: 'Contemporary and creative design for modern roles',
+                descAr: 'تصميم معاصر وإبداعي للوظائف الحديثة',
+                Icon: Sparkles,
+            },
+            {
+                type: 'dummy-modern',
+                titleEn: 'Premium Template',
+                titleAr: 'قالب مميز',
+                descEn: 'Experimental modern design for innovative roles',
+                descAr: 'نموذج عصري تجريبي للوظائف المبتكرة',
+                Icon: IoDiamondOutline as unknown as React.ComponentType<{ className?: string }>,
+            },
+        ];
 
     // Handle download button click
     const handleDownload = (resumeType: 'classic' | 'modern' | 'dummy-modern') => {
@@ -408,306 +443,111 @@ export const PreviewPage: React.FC = () => {
                 </div>
                 {/* Desktop & Mobile View - Show Images Instead of PDF */}
                 <div className="hidden lg:grid lg:grid-cols-3 gap-4   w-full mx-auto">
-                    {/* Classic Resume Images */}
-                    <div
-                        className={`group relative rounded-2xl h-[90vh] transition-all duration-300 ${isDarkMode
-                            ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
-                            : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
-                            }`}
-                    >
-                        <div className="p-6 pb-4">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <FileText className="w-6 h-6" />
-                                    <h2 className="text-2xl font-bold">
-                                        {String(language) === "ar" ? "النموذج الكلاسيكي" : "Classic Template"}
-                                    </h2>
+                    {templates.map(({ type, titleEn, titleAr, descEn, descAr, Icon }) => (
+                        <div
+                            key={type}
+                            className={`group relative rounded-2xl overflow-hidden overflow-y-auto transition-all duration-300 lg:min-h-screen  ${isDarkMode
+                                ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
+                                : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
+                                }`}
+                        >
+                            <div className="p-6 pb-4">
+                                <div className="flex items-center justify-between mb-4 ">
+                                    <div className="flex items-center gap-3">
+                                        <Icon className="w-6 h-6" />
+                                        <h2 className="text-3xl font-bold">{String(language) === "ar" ? titleAr : titleEn}</h2>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDownload(type)}
+                                        className={`flex items-center gap-2 px-6 py-3 rounded-lg  transition-all duration-200 transform hover:scale-105 active:scale-95 ${isDarkMode ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"
+                                            }`}
+                                    >
+                                        {/* <Download className="w-4 h-4" /> */}
+                                        <span className="font-medium">{String(language) === "ar" ? "تحميل" : "Download"}</span>
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => handleDownload('classic')}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-lg  transition-all duration-200 transform hover:scale-105 active:scale-95 ${isDarkMode ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"
-                                        }`}
-                                >
-                                    <Download className="w-4 h-4" />
-                                    <span className="font-medium">{String(language) === "ar" ? "تحميل" : "Download"}</span>
-                                </button>
+                                <p className={`text-sm mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                                    {String(language) === "ar" ? descAr : descEn}
+                                </p>
                             </div>
-                            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                {String(language) === "ar"
-                                    ? "تصميم أنيق ومهني للوظائف التقليدية"
-                                    : "Clean and professional design for traditional roles"}
-                            </p>
-                        </div>
-                        <div className="px-6 pb-6">
-                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                                {/* Show loading, error, or images for classic */}
-                                {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
-                                        </p>
-                                    </div>
-                                ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
-                                        <button
-                                            onClick={() => {
-                                                setPreviewImageError("");
-                                                setPreviewImageLoading(true);
-                                                setTimeout(() => fetchImagesRef.current(), 100);
-                                            }}
-                                            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'}`}
-                                        >
-                                            {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
-                                        </button>
-                                    </div>
-                                ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh]">
-                                        {previewImages.classic.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-full break-after-page">
-                                                <img
-                                                    src={img}
-                                                    alt={`Resume Preview Page ${idx + 1}`}
-                                                    className="w-full h-full object-contain rounded cursor-zoom-in"
-                                                    onClick={() => setFullScreenImg(img)}
-                                                />
-                                                <div className="absolute inset-0 bg-black opacity-50  z-40 rounded flex flex-col items-center justify-center w-full h-full">
-                                                    <MdOutlineRemoveRedEye className="text-white " size={36} />
-                                                    <span className="text-white text-lg font-bold">Locked Content</span>
+                            <div className="px-6 pb-6">
+                                <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                                    {previewImageLoading ? (
+                                        <div className="flex flex-col items-center justify-center py-16">
+                                            <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
+                                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
+                                            </p>
+                                        </div>
+                                    ) : previewImageError ? (
+                                        <div className="flex flex-col items-center justify-center py-16">
+                                            <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
+                                            <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
+                                            <button
+                                                onClick={() => {
+                                                    setPreviewImageError("");
+                                                    setPreviewImageLoading(true);
+                                                    setTimeout(() => fetchImagesRef.current(), 100);
+                                                }}
+                                                className={`mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'}`}
+                                            >
+                                                {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
+                                            </button>
+                                        </div>
+                                    ) : getPreviewImagesFor(type).length > 0 ? (
+                                        <div className="flex flex-col gap-8 items-center justify-center ">
+                                            {getPreviewImagesFor(type).map((img, idx) => (
+                                                <div key={idx} className="relative w-full break-after-page">
+                                                    <img
+                                                        src={img}
+                                                        alt={`Resume Preview Page ${idx + 1}`}
+                                                        className="w-full h-auto object-contain rounded cursor-zoom-in lg:max-h-[430px] lg:min-h-[430px]"
+                                                        onClick={() => setFullScreenImg(img)}
+                                                    />
+                                                    <div className="absolute inset-0 bg-black opacity-50  rounded flex items-center justify-center">
+                                                        <MdOutlineRemoveRedEye className="text-white " size={36} />
+                                                        <span className="text-white text-lg font-bold">Locked Content</span>
+                                                    </div>
+                                                    <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
+                                                        {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
+                                                    </div>
                                                 </div>
-                                                {/* Page Number Overlay */}
-                                                <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
-                                                    {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : null}
-                            </div>
-                        </div>
-                    </div>
-                    {/* Modern Resume Images */}
-                    <div
-                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
-                            ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
-                            : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
-                            }`}
-                    >
-                        <div className="p-6 pb-4">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <Sparkles className="w-6 h-6" />
-                                    <h2 className="text-2xl font-bold">{String(language) === "ar" ? "النموذج العصري" : "Modern Template"}</h2>
+                                            ))}
+                                        </div>
+                                    ) : null}
                                 </div>
-                                <button
-                                    onClick={() => handleDownload('modern')}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 ${isDarkMode ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"
-                                        }`}
-                                >
-                                    <Download className="w-4 h-4" />
-                                    <span className="font-medium">{String(language) === "ar" ? "تحميل" : "Download"}</span>
-                                </button>
-                            </div>
-                            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                {String(language) === "ar"
-                                    ? "تصميم معاصر وإبداعي للوظائف الحديثة"
-                                    : "Contemporary and creative design for modern roles"}
-                            </p>
-                        </div>
-                        <div className="px-6 pb-6">
-                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                                {/* Show loading, error, or images for modern */}
-                                {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
-                                        </p>
-                                    </div>
-                                ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
-                                        <button
-                                            onClick={() => {
-                                                setPreviewImageError("");
-                                                setPreviewImageLoading(true);
-                                                setTimeout(() => fetchImagesRef.current(), 100);
-                                            }}
-                                            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'}`}
-                                        >
-                                            {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
-                                        </button>
-                                    </div>
-                                ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center ">
-                                        {previewImages.modern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
-                                                <img
-                                                    src={img}
-                                                    alt={`Resume Preview Page ${idx + 1}`}
-                                                    className="w-full h-auto object-contain rounded cursor-zoom-in"
-                                                    onClick={() => setFullScreenImg(img)}
-                                                />
-                                                <div className="absolute inset-0 bg-black opacity-50  rounded flex items-center justify-center">
-                                                    <MdOutlineRemoveRedEye className="text-white " size={36} />
-                                                    <span className="text-white text-lg font-bold">Locked Content</span>
-                                                </div>
-                                                {/* Page Number Overlay */}
-                                                <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
-                                                    {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : null}
                             </div>
                         </div>
-                    </div>
-
-                    {/* Dummy Modern Resume Images */}
-                    <div
-                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
-                            ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
-                            : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
-                            }`}
-                    >
-                        <div className="p-6 pb-4">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <IoDiamondOutline className="w-6 h-6" />
-                                    <h2 className="text-2xl font-bold">
-                                        {String(language) === "ar" ? "قالب مميز" : "Premium Template"}
-                                    </h2>
-                                </div>
-
-                                <button
-                                    onClick={() => handleDownload('dummy-modern')}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 ${isDarkMode ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"
-                                        }`}
-                                >
-                                    <Download className="w-4 h-4" />
-                                    <span className="font-medium">{String(language) === "ar" ? "تحميل" : "Download"}</span>
-                                </button>
-                            </div>
-                            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                {String(language) === "ar"
-                                    ? "نموذج عصري تجريبي للوظائف المبتكرة"
-                                    : "Experimental modern design for innovative roles"}
-                            </p>
-                        </div>
-                        <div className="px-6 pb-6">
-                            <div className={`w-full min-h-[300px] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                                {/* Show loading, error, or images for dummy modern */}
-                                {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
-                                        </p>
-                                    </div>
-                                ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                                        <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
-                                        <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
-                                        <button
-                                            onClick={() => {
-                                                setPreviewImageError("");
-                                                setPreviewImageLoading(true);
-                                                setTimeout(() => fetchImagesRef.current(), 100);
-                                            }}
-                                            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isDarkMode ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'}`}
-                                        >
-                                            {String(language) === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
-                                        </button>
-                                    </div>
-                                ) : previewImages && previewImages.dummyModern && previewImages.dummyModern.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center ">
-                                        {previewImages.dummyModern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
-                                                <img
-                                                    src={img}
-                                                    alt={`Resume Preview Page ${idx + 1}`}
-                                                    className="w-full h-auto object-contain rounded cursor-zoom-in"
-                                                    onClick={() => setFullScreenImg(img)}
-                                                />
-                                                <div className="absolute inset-0 bg-black opacity-50  rounded flex items-center justify-center">
-                                                    <MdOutlineRemoveRedEye className="text-white " size={36} />
-                                                    <span className="text-white text-lg font-bold">Locked Content</span>
-                                                </div>
-                                                {/* Page Number Overlay */}
-                                                <div className="absolute bottom-4 right-6 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold z-50 pointer-events-none select-none">
-                                                    {String(language) === 'ar' ? `صفحة ${idx + 1}` : `Page ${idx + 1}`}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : null}
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
                 {/* Mobile/Tablet View - Tabbed Interface */}
                 <div className="lg:hidden ">
                     {/* Tab Buttons */}
                     <div className={`grid sm:grid-cols-3 grid-cols-1 rounded-xl p-1 mb-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
-                        <button
-                            onClick={() => setActivePreview("classic")}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activePreview === "classic"
-                                ? isDarkMode
-                                    ? "bg-white text-black shadow-lg"
-                                    : "bg-black text-white shadow-lg"
-                                : isDarkMode
-                                    ? "text-gray-400 hover:text-white"
-                                    : "text-gray-600 hover:text-black"
-                                }`}
-                        >
-                            <FileText className="w-4 h-4" />
-                            <span>{String(language) === "ar" ? "كلاسيكي" : "Classic"}</span>
-                        </button>
-                        <button
-                            onClick={() => setActivePreview("modern")}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activePreview === "modern"
-                                ? isDarkMode
-                                    ? "bg-white text-black shadow-lg"
-                                    : "bg-black text-white shadow-lg"
-                                : isDarkMode
-                                    ? "text-gray-400 hover:text-white"
-                                    : "text-gray-600 hover:text-black"
-                                }`}
-                        >
-                            <Sparkles className="w-4 h-4 " />
-                            <span>{String(language) === "ar" ? "عصري" : "Modern"}</span>
-                        </button>
-                        <button
-                            onClick={() => setActivePreview("dummy-modern")}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activePreview === "dummy-modern"
-                                ? isDarkMode
-                                    ? "bg-white text-black shadow-lg"
-                                    : "bg-black text-white shadow-lg"
-                                : isDarkMode
-                                    ? "text-gray-400 hover:text-white"
-                                    : "text-gray-600 hover:text-black"
-                                }`}
-                        >
-                            <Sparkles className="w-4 h-4 " />
-                            <span>{String(language) === "ar" ? "تجريبي" : "Dummy"}</span>
-                        </button>
+                        {templates.map(({ type, titleEn, titleAr, Icon }) => (
+                            <button
+                                key={type}
+                                onClick={() => setActivePreview(type)}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activePreview === type
+                                    ? isDarkMode
+                                        ? "bg-white text-black shadow-lg"
+                                        : "bg-black text-white shadow-lg"
+                                    : isDarkMode
+                                        ? "text-gray-400 hover:text-white"
+                                        : "text-gray-600 hover:text-black"
+                                    }`}
+                            >
+                                <Icon className="w-4 h-4" />
+                                <span>{String(language) === "ar" ? titleAr : titleEn}</span>
+                            </button>
+                        ))}
                     </div>
                     {/* Mobile Image Preview Logic */}
                     <div className={`rounded-2xl  overflow-y-auto ${isDarkMode ? "bg-gray-900/50 border border-gray-800" : "bg-white border border-gray-200 shadow-lg"}`}>
                         <div className="p-6 pb-4">
                             <div className="flex items-center  justify-between mb-4">
                                 <h2 className="text-2xl font-bold">
-                                    {activePreview === "classic"
-                                        ? String(language) === "ar"
-                                            ? "النموذج الكلاسيكي"
-                                            : "Classic Template"
-                                        : String(language) === "ar"
-                                            ? "النموذج العصري"
-                                            : "Modern Template"}
+                                    {(String(language) === 'ar' ? (templates.find(t => t.type === activePreview)?.titleAr) : (templates.find(t => t.type === activePreview)?.titleEn)) || ''}
                                 </h2>
                                 <button
                                     onClick={() => handleDownload(activePreview)}
@@ -719,27 +559,21 @@ export const PreviewPage: React.FC = () => {
                                 </button>
                             </div>
                             <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                {activePreview === "classic"
-                                    ? String(language) === "ar"
-                                        ? "تصميم أنيق ومهني للوظائف التقليدية"
-                                        : "Clean and professional design for traditional roles"
-                                    : String(language) === "ar"
-                                        ? "تصميم معاصر وإبداعي للوظائف الحديثة"
-                                        : "Contemporary and creative design for modern roles"}
+                                {(String(language) === 'ar' ? (templates.find(t => t.type === activePreview)?.descAr) : (templates.find(t => t.type === activePreview)?.descEn)) || ''}
                             </p>
                         </div>
                         <div className="px-6 pb-6">
-                            <div className={`w-full min-h-[30vh] rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                            <div className={`w-full rounded-xl overflow-hidden  ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                                 {/* Show loading, error, or images */}
                                 {previewImageLoading ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
+                                    <div className="flex flex-col items-center justify-center py-16">
                                         <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                                         <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                             {String(language) === 'ar' ? 'جاري تحميل المعاينة...' : 'Loading preview...'}
                                         </p>
                                     </div>
                                 ) : previewImageError ? (
-                                    <div className="flex flex-col items-center justify-center min-h-[200px]">
+                                    <div className="flex flex-col items-center justify-center py-16">
                                         <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
                                         <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{previewImageError}</p>
                                         <button
@@ -756,11 +590,11 @@ export const PreviewPage: React.FC = () => {
                                 ) : getPreviewImagesFor(activePreview).length > 0 ? (
                                     <div className="flex flex-col gap-4 items-center justify-center py-4">
                                         {getPreviewImagesFor(activePreview).map((img: string, idx: number) => (
-                                            <div key={idx} className="relative w-full h-full">
+                                            <div key={idx} className="relative w-full">
                                                 <img
                                                     src={img}
                                                     alt="Resume Preview"
-                                                    className="w-full h-full object-contain rounded cursor-zoom-in"
+                                                    className="w-full h-auto object-contain rounded cursor-zoom-in"
                                                     onClick={() => setFullScreenImg(img)}
                                                 />
                                                 <div className="absolute inset-0  bg-black opacity-50 rounded flex flex-col items-center justify-center w-full h-full">
