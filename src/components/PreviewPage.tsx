@@ -370,7 +370,7 @@ export const PreviewPage: React.FC = () => {
             />
             {/* Mobile Screenshot/Recording Overlay */}
             {isMobile && showMobileOverlay && (
-                <div className="fixed inset-0 z-[40] flex items-center justify-center  bg-black bg-opacity-80 backdrop-blur-lg ">
+                <div className="fixed inset-0 z-[40] flex items-center justify-center  bg-black bg-opacity-80 backdrop-blur-lg">
                     <div className="text-center text-white p-8 rounded-2xl bg-black bg-opacity-70 border-red-600 shadow-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         <h2 className="text-2xl font-bold mb-2">{String(language) === 'ar' ? 'تم تعطيل المعاينة مؤقتًا' : 'Preview Disabled'}</h2>
@@ -463,9 +463,9 @@ export const PreviewPage: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : previewImages && previewImages.classic && previewImages.classic.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh] custom-scrollbar">
+                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh]">
                                         {previewImages.classic.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-full break-after-page ">
+                                            <div key={idx} className="relative w-full h-full break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
@@ -489,7 +489,7 @@ export const PreviewPage: React.FC = () => {
                     </div>
                     {/* Modern Resume Images */}
                     <div
-                        className={`group relative rounded-2xl overflow-hidden h-[90vh] transition-all duration-300 ${isDarkMode
+                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
                             ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                             : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
                             }`}
@@ -541,9 +541,9 @@ export const PreviewPage: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : previewImages && previewImages.modern && previewImages.modern.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh] custom-scrollbar">
+                                    <div className="flex flex-col gap-8 items-center justify-center ">
                                         {previewImages.modern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page pt-4">
+                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
@@ -568,7 +568,7 @@ export const PreviewPage: React.FC = () => {
 
                     {/* Dummy Modern Resume Images */}
                     <div
-                        className={`group relative rounded-2xl overflow-hidden h-[90vh] transition-all duration-300 ${isDarkMode
+                        className={`group relative rounded-2xl overflow-hidden h-[90vh] overflow-y-auto transition-all duration-300 ${isDarkMode
                             ? "bg-gray-900/50 border border-gray-800 hover:border-gray-700"
                             : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl"
                             }`}
@@ -620,9 +620,9 @@ export const PreviewPage: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : previewImages && previewImages.dummyModern && previewImages.dummyModern.length > 0 ? (
-                                    <div className="flex flex-col gap-8 items-center justify-center overflow-y-auto h-[65vh] custom-scrollbar">
+                                    <div className="flex flex-col gap-8 items-center justify-center ">
                                         {previewImages.dummyModern.map((img, idx) => (
-                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page pt-4">
+                                            <div key={idx} className="relative w-full h-auto md:max-h-[80vh] max-h-[60vh] break-after-page">
                                                 <img
                                                     src={img}
                                                     alt={`Resume Preview Page ${idx + 1}`}
@@ -693,7 +693,7 @@ export const PreviewPage: React.FC = () => {
                         </button>
                     </div>
                     {/* Mobile Image Preview Logic */}
-                    <div className={`rounded-2xl  ${isDarkMode ? "bg-gray-900/50 border border-gray-800" : "bg-white border border-gray-200 shadow-lg"}`}>
+                    <div className={`rounded-2xl  overflow-y-auto ${isDarkMode ? "bg-gray-900/50 border border-gray-800" : "bg-white border border-gray-200 shadow-lg"}`}>
                         <div className="p-6 pb-4">
                             <div className="flex items-center  justify-between mb-4">
                                 <h2 className="text-2xl font-bold">
@@ -750,7 +750,7 @@ export const PreviewPage: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : getPreviewImagesFor(activePreview).length > 0 ? (
-                                    <div className="flex flex-col gap-4 items-center justify-center py-4 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                                    <div className="flex flex-col gap-4 items-center justify-center py-4">
                                         {getPreviewImagesFor(activePreview).map((img: string, idx: number) => (
                                             <div key={idx} className="relative w-full h-full">
                                                 <img
@@ -793,7 +793,7 @@ export const PreviewPage: React.FC = () => {
             {/* Full Screen Image Modal for Mobile */}
             {fullScreenImg && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center   justify-center bg-black bg-opacity-90 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-center  justify-center bg-black bg-opacity-90 backdrop-blur-sm"
                     onClick={() => setFullScreenImg(null)}
                 >
                     <img
@@ -804,7 +804,7 @@ export const PreviewPage: React.FC = () => {
                         onClick={e => e.stopPropagation()}
                     />
                     <button
-                        className="absolute top-4 right-4 p-2 rounded-full  bg-black bg-opacity-60 hover:bg-opacity-80 text-white"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-black bg-opacity-60 hover:bg-opacity-80 text-white"
                         onClick={() => setFullScreenImg(null)}
                         aria-label="Close full screen preview"
                         style={{ zIndex: 60 }}
